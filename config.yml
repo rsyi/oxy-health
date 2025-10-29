@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oxy-hq/oxy/refs/heads/main/json-schemas/config.json
+defaults:
+  database: motherduck
+models:
+  - vendor: openai
+    name: openai
+    model_ref: gpt-5
+    key_var: OPENAI_API_KEY
+    api_url: https://api.openai.com/v1
+databases:
+  - name: motherduck
+    type: motherduck
+    token_var: MOTHERDUCK_PERSONAL_TOKEN
+    database: personal_data
+    schemas:
+      exercise:
+      - "*"
+      body:
+      - "*"

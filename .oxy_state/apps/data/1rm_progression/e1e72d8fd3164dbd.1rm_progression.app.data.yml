@@ -1,0 +1,10 @@
+bench_press_1rm:
+  file_path: apps/data/1rm_progression/715f17dc-5d0a-486c-bbed-d5f153a408a1.parquet
+squat_1rm:
+  file_path: apps/data/1rm_progression/7911380f-75dc-4b68-bcba-15e3ca7af8a7.parquet
+deadlift_1rm:
+  file_path: apps/data/1rm_progression/79857ef2-9a64-4ba7-b958-9e9d6dfd6e87.parquet
+all_exercises_combined:
+  file_path: apps/data/1rm_progression/7e115ba2-31b2-4531-89a3-5299e3129379.parquet
+overhead_press_1rm:
+  file_path: apps/data/1rm_progression/f6bd0545-9b4e-45ed-9e69-e74f9bae6aba.parquet

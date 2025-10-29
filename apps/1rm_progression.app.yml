@@ -1,0 +1,220 @@
+tasks:
+  - name: deadlift_1rm
+    type: execute_sql
+    sql_query: |
+      WITH per_month AS (
+          SELECT
+              DATE_TRUNC('month', Date) AS month,
+              weight,
+              reps,
+              weight * (POWER(reps, 0.1)) AS est_1RM
+          FROM personal_data.exercise.strength_tracker
+          WHERE Exercise = 'Barbell Deadlift'
+      ),
+      max_per_month AS (
+          SELECT
+              month,
+              MAX(est_1RM) AS max_estimated_1RM
+          FROM per_month
+          GROUP BY month
+      )
+      SELECT
+          strftime(m.month, '%Y-%m') as month,
+          m.max_estimated_1RM,
+          p.weight AS corresponding_weight,
+          p.reps AS corresponding_reps
+      FROM max_per_month m
+      JOIN per_month p
+        ON p.month = m.month
+       AND p.est_1RM = m.max_estimated_1RM
+      ORDER BY m.month
+    database: motherduck
+
+  - name: bench_press_1rm
+    type: execute_sql
+    sql_query: |
+      WITH per_month AS (
+          SELECT
+              DATE_TRUNC('month', Date) AS month,
+              weight,
+              reps,
+              weight * (POWER(reps, 0.1)) AS est_1RM
+          FROM personal_data.exercise.strength_tracker
+          WHERE Exercise = 'Flat Barbell Bench Press'
+      ),
+      max_per_month AS (
+          SELECT
+              month,
+              MAX(est_1RM) AS max_estimated_1RM
+          FROM per_month
+          GROUP BY month
+      )
+      SELECT
+          strftime(m.month, '%Y-%m') as month,
+          m.max_estimated_1RM,
+          p.weight AS corresponding_weight,
+          p.reps AS corresponding_reps
+      FROM max_per_month m
+      JOIN per_month p
+        ON p.month = m.month
+       AND p.est_1RM = m.max_estimated_1RM
+      ORDER BY m.month
+    database: motherduck
+
+  - name: squat_1rm
+    type: execute_sql
+    sql_query: |
+      WITH per_month AS (
+          SELECT
+              DATE_TRUNC('month', Date) AS month,
+              weight,
+              reps,
+              weight * (POWER(reps, 0.1)) AS est_1RM
+          FROM personal_data.exercise.strength_tracker
+          WHERE Exercise = 'Barbell Squat'
+      ),
+      max_per_month AS (
+          SELECT
+              month,
+              MAX(est_1RM) AS max_estimated_1RM
+          FROM per_month
+          GROUP BY month
+      )
+      SELECT
+          strftime(m.month, '%Y-%m') as month,
+          m.max_estimated_1RM,
+          p.weight AS corresponding_weight,
+          p.reps AS corresponding_reps
+      FROM max_per_month m
+      JOIN per_month p
+        ON p.month = m.month
+       AND p.est_1RM = m.max_estimated_1RM
+      ORDER BY m.month
+    database: motherduck
+
+  - name: overhead_press_1rm
+    type: execute_sql
+    sql_query: |
+      WITH per_month AS (
+          SELECT
+              DATE_TRUNC('month', Date) AS month,
+              weight,
+              reps,
+              weight * (POWER(reps, 0.1)) AS est_1RM
+          FROM personal_data.exercise.strength_tracker
+          WHERE Exercise = 'Overhead Press'
+      ),
+      max_per_month AS (
+          SELECT
+              month,
+              MAX(est_1RM) AS max_estimated_1RM
+          FROM per_month
+          GROUP BY month
+      )
+      SELECT
+          strftime(m.month, '%Y-%m') as month,
+          m.max_estimated_1RM,
+          p.weight AS corresponding_weight,
+          p.reps AS corresponding_reps
+      FROM max_per_month m
+      JOIN per_month p
+        ON p.month = m.month
+       AND p.est_1RM = m.max_estimated_1RM
+      ORDER BY m.month
+    database: motherduck
+
+  - name: all_exercises_combined
+    type: execute_sql
+    sql_query: |
+      WITH per_month AS (
+          SELECT
+              Exercise,
+              DATE_TRUNC('month', Date) AS month,
+              weight,
+              reps,
+              weight * (POWER(reps, 0.1)) AS est_1RM
+          FROM personal_data.exercise.strength_tracker
+          WHERE Exercise IN ('Barbell Deadlift', 'Flat Barbell Bench Press', 'Barbell Squat', 'Overhead Press')
+      ),
+      max_per_month AS (
+          SELECT
+              Exercise,
+              month,
+              MAX(est_1RM) AS max_estimated_1RM
+          FROM per_month
+          GROUP BY Exercise, month
+      )
+      SELECT
+          m.Exercise,
+          strftime(m.month, '%Y-%m') as month,
+          m.max_estimated_1RM
+      FROM max_per_month m
+      ORDER BY m.month, m.Exercise
+    database: motherduck
+
+display:
+  - type: markdown
+    content: |
+      # 1RM Progression Tracker
+
+      Track your estimated 1 Rep Max (1RM) progression over time using the Lombardi formula:
+      **1RM = Weight × (Reps^0.1)**
+
+      This dashboard shows your strength progression across major compound lifts.
+
+  - type: line_chart
+    title: All Exercises - 1RM Progression Over Time
+    data: all_exercises_combined
+    x: month
+    y: max_estimated_1RM
+    series: Exercise
+    x_axis_label: Month
+    y_axis_label: Estimated 1RM (lbs)
+
+  - type: line_chart
+    title: Deadlift - 1RM Progression
+    data: deadlift_1rm
+    x: month
+    y: max_estimated_1RM
+    x_axis_label: Month
+    y_axis_label: Estimated 1RM (lbs)
+
+  - type: line_chart
+    title: Bench Press - 1RM Progression
+    data: bench_press_1rm
+    x: month
+    y: max_estimated_1RM
+    x_axis_label: Month
+    y_axis_label: Estimated 1RM (lbs)
+
+  - type: line_chart
+    title: Squat - 1RM Progression
+    data: squat_1rm
+    x: month
+    y: max_estimated_1RM
+    x_axis_label: Month
+    y_axis_label: Estimated 1RM (lbs)
+
+  - type: line_chart
+    title: Overhead Press - 1RM Progression
+    data: overhead_press_1rm
+    x: month
+    y: max_estimated_1RM
+    x_axis_label: Month
+    y_axis_label: Estimated 1RM (lbs)
+
+  - type: table
+    title: Deadlift - Detailed Monthly Data
+    data: deadlift_1rm
+
+  - type: table
+    title: Bench Press - Detailed Monthly Data
+    data: bench_press_1rm
+
+  - type: table
+    title: Squat - Detailed Monthly Data
+    data: squat_1rm
+
+  - type: table
+    title: Overhead Press - Detailed Monthly Data
+    data: overhead_press_1rm

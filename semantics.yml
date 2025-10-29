@@ -1,0 +1,164 @@
+dimensions:
+- name: Notes
+  targets:
+  - motherduck.health.workouts.Notes
+  - motherduck.exercise.strength_tracker.Notes
+- name: Exercise
+  targets:
+  - motherduck.health.workouts.Exercise
+  - motherduck.main.fitnotes_export.Exercise
+  - motherduck.exercise.strength_tracker.Exercise
+- name: Day of Week
+  targets:
+  - motherduck.health.workouts.Day of Week
+  - motherduck.exercise.strength_tracker.Day of Week
+- name: Start Time
+  targets:
+  - motherduck.health.workouts.Start Time
+  - motherduck.exercise.strength_tracker.Start Time
+- name: Date
+  targets:
+  - motherduck.health.workouts.Date
+  - motherduck.main.fitnotes_export.Date
+  - motherduck.exercise.strength_tracker.Date
+- name: Reps
+  targets:
+  - motherduck.health.workouts.Reps
+  - motherduck.main.fitnotes_export.Reps
+  - motherduck.exercise.strength_tracker.Reps
+- name: RPE
+  targets:
+  - motherduck.health.workouts.RPE
+  - motherduck.exercise.strength_tracker.RPE
+- name: Weight
+  targets:
+  - motherduck.health.workouts.Weight
+  - motherduck.main.fitnotes_export.Weight
+  - motherduck.exercise.strength_tracker.Weight
+- name: Weight Unit
+  targets:
+  - motherduck.main.fitnotes_export.Weight Unit
+- name: Category
+  targets:
+  - motherduck.main.fitnotes_export.Category
+- name: Distance
+  targets:
+  - motherduck.main.fitnotes_export.Distance
+- name: Time
+  targets:
+  - motherduck.main.fitnotes_export.Time
+- name: Distance Unit
+  targets:
+  - motherduck.main.fitnotes_export.Distance Unit
+- name: access
+  targets:
+  - motherduck.main.shared_with_me.access
+  - motherduck.main.owned_shares.access
+- name: name
+  targets:
+  - motherduck.main.shared_with_me.name
+  - motherduck.main.owned_shares.name
+  - motherduck.main.databases.name
+- name: update
+  targets:
+  - motherduck.main.shared_with_me.update
+  - motherduck.main.owned_shares.update
+- name: url
+  targets:
+  - motherduck.main.shared_with_me.url
+  - motherduck.main.owned_shares.url
+- name: created_ts
+  targets:
+  - motherduck.main.shared_with_me.created_ts
+  - motherduck.main.owned_shares.created_ts
+  - motherduck.main.databases.created_ts
+- name: bytes_spilled_to_disk
+  targets:
+  - motherduck.main.query_history.bytes_spilled_to_disk
+- name: start_time
+  targets:
+  - motherduck.main.query_history.start_time
+- name: query_nr
+  targets:
+  - motherduck.main.query_history.query_nr
+- name: instance_type
+  targets:
+  - motherduck.main.query_history.instance_type
+- name: user_agent
+  targets:
+  - motherduck.main.query_history.user_agent
+- name: error_message
+  targets:
+  - motherduck.main.query_history.error_message
+- name: bytes_uploaded
+  targets:
+  - motherduck.main.query_history.bytes_uploaded
+- name: query_type
+  targets:
+  - motherduck.main.query_history.query_type
+- name: user_name
+  targets:
+  - motherduck.main.query_history.user_name
+- name: execution_time
+  targets:
+  - motherduck.main.query_history.execution_time
+- name: query_text
+  targets:
+  - motherduck.main.query_history.query_text
+- name: duckdb_id
+  targets:
+  - motherduck.main.query_history.duckdb_id
+- name: total_elapsed_time
+  targets:
+  - motherduck.main.query_history.total_elapsed_time
+- name: wait_time
+  targets:
+  - motherduck.main.query_history.wait_time
+- name: duckdb_version
+  targets:
+  - motherduck.main.query_history.duckdb_version
+- name: end_time
+  targets:
+  - motherduck.main.query_history.end_time
+- name: transaction_nr
+  targets:
+  - motherduck.main.query_history.transaction_nr
+- name: bytes_downloaded
+  targets:
+  - motherduck.main.query_history.bytes_downloaded
+- name: connection_id
+  targets:
+  - motherduck.main.query_history.connection_id
+- name: error_type
+  targets:
+  - motherduck.main.query_history.error_type
+- name: query_id
+  targets:
+  - motherduck.main.query_history.query_id
+- name: grants
+  targets:
+  - motherduck.main.owned_shares.grants
+- name: visibility
+  targets:
+  - motherduck.main.owned_shares.visibility
+- name: source_db_name
+  targets:
+  - motherduck.main.owned_shares.source_db_name
+- name: source_db_uuid
+  targets:
+  - motherduck.main.owned_shares.source_db_uuid
+- name: uuid
+  targets:
+  - motherduck.main.databases.uuid
+- name: Datetime (Local)
+  targets:
+  - motherduck.body.body_composition_tracker.Datetime (Local)
+- name: Body Fat % (Caliper - Gut)
+  targets:
+  - motherduck.body.body_composition_tracker.Body Fat % (Caliper - Gut)
+- name: Weight (lbs)
+  targets:
+  - motherduck.body.body_composition_tracker.Weight (lbs)
+- name: Body Fat % (Omron)
+  targets:
+  - motherduck.body.body_composition_tracker.Body Fat % (Omron)
