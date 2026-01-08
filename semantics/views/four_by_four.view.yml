@@ -1,0 +1,123 @@
+name: four_by_four
+description: "Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity."
+datasource: motherduck
+table: exercise.four_by_four
+
+entities:
+  - name: vo2_session
+    type: primary
+    description: "Individual VO2 max training session"
+    key: session_id
+
+  - name: training_day
+    type: foreign
+    description: "Training day for the session"
+    key: date
+
+dimensions:
+  - name: session_id
+    type: string
+    description: "Unique identifier for each session"
+    expr: "CAST(Date AS VARCHAR)"
+
+  - name: date
+    type: date
+    description: "Date of VO2 max session"
+    expr: "Date"
+
+  - name: year
+    type: number
+    description: "Year of session"
+    expr: "EXTRACT(YEAR FROM Date)"
+
+  - name: month
+    type: string
+    description: "Year-Month in YYYY-MM format for aggregation"
+    expr: "STRFTIME(Date, '%Y-%m')"
+    synonyms: ["year-month", "month"]
+
+  - name: week
+    type: string
+    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    synonyms: ["week start", "week"]
+
+  - name: treadmill_speed
+    type: number
+    description: "Treadmill speed in miles per hour"
+    expr: "\"Treadmill Speed (mph)\""
+    synonyms: ["speed", "mph"]
+
+  - name: treadmill_incline
+    type: number
+    description: "Treadmill incline percentage"
+    expr: "\"Treadmill Incline (%)\""
+    synonyms: ["incline", "grade"]
+
+  - name: zone_5_reached
+    type: string
+    description: "Whether heart rate zone 5 was reached (VO2 max zone)"
+    expr: "\"Time Zone 5 Reached\""
+    synonyms: ["zone 5", "max zone reached"]
+
+  - name: total_time
+    type: string
+    description: "Total workout time"
+    expr: "\"Total Time\""
+    synonyms: ["duration", "workout time"]
+
+  - name: notes
+    type: string
+    description: "Session notes and observations"
+    expr: "Notes"
+
+measures:
+  - name: total_sessions
+    type: count
+    description: "Total number of VO2 max sessions"
+    synonyms: ["session count", "workout count"]
+
+  - name: training_frequency
+    type: count_distinct
+    description: "Number of unique training days"
+    expr: "Date"
+    synonyms: ["days trained"]
+
+  - name: avg_speed
+    type: average
+    description: "Average treadmill speed across sessions"
+    expr: "\"Treadmill Speed (mph)\""
+    synonyms: ["mean speed"]
+
+  - name: max_speed
+    type: max
+    description: "Maximum treadmill speed achieved"
+    expr: "\"Treadmill Speed (mph)\""
+
+  - name: min_speed
+    type: min
+    description: "Minimum treadmill speed"
+    expr: "\"Treadmill Speed (mph)\""
+
+  - name: avg_incline
+    type: average
+    description: "Average treadmill incline"
+    expr: "\"Treadmill Incline (%)\""
+    synonyms: ["mean incline"]
+
+  - name: max_incline
+    type: max
+    description: "Maximum treadmill incline achieved"
+    expr: "\"Treadmill Incline (%)\""
+
+  - name: zone_5_success_rate
+    type: custom
+    description: "Percentage of sessions reaching zone 5"
+    expr: "COUNT(CASE WHEN \"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != '' THEN 1 END) * 100.0 / COUNT(*)"
+    synonyms: ["zone 5 rate", "VO2 max achievement rate"]
+
+  - name: sessions_reaching_zone_5
+    type: count
+    description: "Number of sessions that reached zone 5"
+    filters:
+      - expr: "\"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != ''"

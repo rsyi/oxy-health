@@ -17,3 +17,5 @@ databases:
       - "*"
       body:
       - "*"
+      nutrition:
+      - "*"

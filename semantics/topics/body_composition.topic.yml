@@ -1,0 +1,12 @@
+name: body_composition
+description: "Body composition tracking for monitoring weight, body fat percentage, and lean mass to ensure healthy body composition for longevity and metabolic health"
+base_view: body_composition
+views:
+  - body_composition
+
+# Questions this topic can answer:
+# - What's my current body weight and body fat percentage?
+# - How has my lean mass changed over time?
+# - Am I gaining or losing fat mass?
+# - What's my body composition trend?
+# - How much lean mass do I have?

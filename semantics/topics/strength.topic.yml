@@ -1,0 +1,13 @@
+name: strength
+description: "Strength training progression tracking focused on the four main compound lifts (squat, deadlift, bench press, overhead press) for building and maintaining muscle mass critical for longevity"
+base_view: strength_tracker
+views:
+  - strength_tracker
+
+# Questions this topic can answer:
+# - What's my current estimated 1RM for each main lift?
+# - How has my squat/deadlift/bench/OHP progressed over time?
+# - What's my total training volume this month?
+# - How many high-intensity sets am I doing per week?
+# - What's my training frequency?
+# - Am I making progress on strength gains?

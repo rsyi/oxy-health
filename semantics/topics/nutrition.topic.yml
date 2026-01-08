@@ -1,0 +1,12 @@
+name: nutrition
+description: "Daily nutrition tracking and macronutrient analysis for optimizing dietary intake to support longevity, cognitive health, and athletic performance"
+base_view: macro_tracker
+views:
+  - macro_tracker
+
+# Questions this topic can answer:
+# - What are my average daily macros over the last month?
+# - How consistent is my calorie intake?
+# - What's my protein-to-calorie ratio?
+# - Am I hitting my nutrition targets?
+# - How do my macros vary by day of week?

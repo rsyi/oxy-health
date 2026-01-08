@@ -1,0 +1,134 @@
+name: macro_tracker
+description: "Daily nutrition tracking including macronutrients and total calories"
+datasource: motherduck
+table: nutrition.macro_tracker
+
+entities:
+  - name: nutrition_day
+    type: primary
+    description: "Individual day of nutrition tracking"
+    key: date
+
+dimensions:
+  - name: date
+    type: date
+    description: "Date of nutrition entry"
+    expr: "Date"
+
+  - name: year
+    type: number
+    description: "Year of nutrition entry"
+    expr: "EXTRACT(YEAR FROM Date)"
+
+  - name: month
+    type: string
+    description: "Year-Month in YYYY-MM format for aggregation"
+    expr: "STRFTIME(Date, '%Y-%m')"
+    synonyms: ["year-month", "month"]
+
+  - name: week
+    type: string
+    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    synonyms: ["week start", "week"]
+
+  - name: day_of_week
+    type: number
+    description: "Day of week (1=Monday, 7=Sunday)"
+    expr: "EXTRACT(DAYOFWEEK FROM Date)"
+
+  - name: calories
+    type: number
+    description: "Total daily calories in kcal"
+    expr: "\"Calories (kcal)\""
+    synonyms: ["kcal", "energy", "total calories"]
+
+  - name: protein
+    type: number
+    description: "Daily protein intake in grams"
+    expr: "\"Protein (g)\""
+    synonyms: ["protein grams"]
+
+  - name: carbs
+    type: number
+    description: "Daily carbohydrate intake in grams"
+    expr: "\"Carbs (g)\""
+    synonyms: ["carbohydrates", "carb grams"]
+
+  - name: fat
+    type: number
+    description: "Daily fat intake in grams"
+    expr: "\"Fat (g)\""
+    synonyms: ["fat grams", "dietary fat"]
+
+  - name: protein_ratio
+    type: number
+    description: "Percentage of calories from protein"
+    expr: "(\"Protein (g)\" * 4.0) / \"Calories (kcal)\" * 100"
+    synonyms: ["protein percentage", "protein %"]
+
+  - name: carb_ratio
+    type: number
+    description: "Percentage of calories from carbohydrates"
+    expr: "(\"Carbs (g)\" * 4.0) / \"Calories (kcal)\" * 100"
+    synonyms: ["carb percentage", "carb %"]
+
+  - name: fat_ratio
+    type: number
+    description: "Percentage of calories from fat"
+    expr: "(\"Fat (g)\" * 9.0) / \"Calories (kcal)\" * 100"
+    synonyms: ["fat percentage", "fat %"]
+
+measures:
+  - name: total_days
+    type: count
+    description: "Total number of days tracked"
+
+  - name: avg_daily_calories
+    type: average
+    description: "Average daily calorie intake"
+    expr: "\"Calories (kcal)\""
+    synonyms: ["mean calories", "average kcal"]
+
+  - name: avg_daily_protein
+    type: average
+    description: "Average daily protein intake in grams"
+    expr: "\"Protein (g)\""
+    synonyms: ["mean protein"]
+
+  - name: avg_daily_carbs
+    type: average
+    description: "Average daily carbohydrate intake in grams"
+    expr: "\"Carbs (g)\""
+    synonyms: ["mean carbs"]
+
+  - name: avg_daily_fat
+    type: average
+    description: "Average daily fat intake in grams"
+    expr: "\"Fat (g)\""
+    synonyms: ["mean fat"]
+
+  - name: total_calories
+    type: sum
+    description: "Total calories consumed across all days"
+    expr: "\"Calories (kcal)\""
+
+  - name: total_protein
+    type: sum
+    description: "Total protein consumed in grams"
+    expr: "\"Protein (g)\""
+
+  - name: min_daily_calories
+    type: min
+    description: "Minimum daily calories in period"
+    expr: "\"Calories (kcal)\""
+
+  - name: max_daily_calories
+    type: max
+    description: "Maximum daily calories in period"
+    expr: "\"Calories (kcal)\""
+
+  - name: calorie_variance
+    type: custom
+    description: "Standard deviation of daily calories"
+    expr: "STDDEV_SAMP(\"Calories (kcal)\")"

@@ -1,0 +1,119 @@
+cubes:
+  - name: macro_tracker
+    sql_table: nutrition.macro_tracker
+    data_source: motherduck
+    title: macro_tracker
+    description: Daily nutrition tracking including macronutrients and total calories
+    dimensions:
+    - name: date
+      sql: Date
+      type: time
+      title: date
+      description: Date of nutrition entry
+      primary_key: true
+    - name: year
+      sql: EXTRACT(YEAR FROM Date)
+      type: number
+      title: year
+      description: Year of nutrition entry
+    - name: month
+      sql: STRFTIME(Date, '%Y-%m')
+      type: string
+      title: month
+      description: Year-Month in YYYY-MM format for aggregation
+    - name: week
+      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
+      type: string
+      title: week
+      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: day_of_week
+      sql: EXTRACT(DAYOFWEEK FROM Date)
+      type: number
+      title: day_of_week
+      description: Day of week (1=Monday, 7=Sunday)
+    - name: calories
+      sql: '"Calories (kcal)"'
+      type: number
+      title: calories
+      description: Total daily calories in kcal
+    - name: protein
+      sql: '"Protein (g)"'
+      type: number
+      title: protein
+      description: Daily protein intake in grams
+    - name: carbs
+      sql: '"Carbs (g)"'
+      type: number
+      title: carbs
+      description: Daily carbohydrate intake in grams
+    - name: fat
+      sql: '"Fat (g)"'
+      type: number
+      title: fat
+      description: Daily fat intake in grams
+    - name: protein_ratio
+      sql: ("Protein (g)" * 4.0) / "Calories (kcal)" * 100
+      type: number
+      title: protein_ratio
+      description: Percentage of calories from protein
+    - name: carb_ratio
+      sql: ("Carbs (g)" * 4.0) / "Calories (kcal)" * 100
+      type: number
+      title: carb_ratio
+      description: Percentage of calories from carbohydrates
+    - name: fat_ratio
+      sql: ("Fat (g)" * 9.0) / "Calories (kcal)" * 100
+      type: number
+      title: fat_ratio
+      description: Percentage of calories from fat
+    measures:
+    - name: total_days
+      sql: '1'
+      type: count
+      title: total_days
+      description: Total number of days tracked
+    - name: avg_daily_calories
+      sql: '"Calories (kcal)"'
+      type: avg
+      title: avg_daily_calories
+      description: Average daily calorie intake
+    - name: avg_daily_protein
+      sql: '"Protein (g)"'
+      type: avg
+      title: avg_daily_protein
+      description: Average daily protein intake in grams
+    - name: avg_daily_carbs
+      sql: '"Carbs (g)"'
+      type: avg
+      title: avg_daily_carbs
+      description: Average daily carbohydrate intake in grams
+    - name: avg_daily_fat
+      sql: '"Fat (g)"'
+      type: avg
+      title: avg_daily_fat
+      description: Average daily fat intake in grams
+    - name: total_calories
+      sql: '"Calories (kcal)"'
+      type: sum
+      title: total_calories
+      description: Total calories consumed across all days
+    - name: total_protein
+      sql: '"Protein (g)"'
+      type: sum
+      title: total_protein
+      description: Total protein consumed in grams
+    - name: min_daily_calories
+      sql: '"Calories (kcal)"'
+      type: min
+      title: min_daily_calories
+      description: Minimum daily calories in period
+    - name: max_daily_calories
+      sql: '"Calories (kcal)"'
+      type: max
+      title: max_daily_calories
+      description: Maximum daily calories in period
+    - name: calorie_variance
+      sql: STDDEV_SAMP("Calories (kcal)")
+      type: number
+      title: calorie_variance
+      description: Standard deviation of daily calories

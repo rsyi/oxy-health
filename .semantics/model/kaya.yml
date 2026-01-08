@@ -1,0 +1,118 @@
+cubes:
+  - name: kaya
+    sql_table: exercise.kaya
+    data_source: motherduck
+    title: kaya
+    description: Rock climbing tracking for mobility and movement quality. Tracks climbs by grade, attempts, and ascent type for monitoring climbing progression and mobility work.
+    dimensions:
+    - name: climb_id
+      sql: CONCAT(CAST(date AS VARCHAR), '_', climb_name, '_', gym)
+      type: string
+      title: climb_id
+      description: Unique identifier for climb (date + climb_name + gym)
+      primary_key: true
+    - name: date
+      sql: date
+      type: time
+      title: date
+      description: Date of climbing session
+    - name: year
+      sql: EXTRACT(YEAR FROM date)
+      type: number
+      title: year
+      description: Year of climb
+    - name: month
+      sql: STRFTIME(date, '%Y-%m')
+      type: string
+      title: month
+      description: Year-Month in YYYY-MM format for aggregation
+    - name: week
+      sql: STRFTIME(DATE_TRUNC('week', date), '%Y-%m-%d')
+      type: string
+      title: week
+      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: climb_name
+      sql: climb_name
+      type: string
+      title: climb_name
+      description: Name or identifier of the climb
+    - name: gym
+      sql: gym
+      type: string
+      title: gym
+      description: Gym or climbing location
+    - name: grade
+      sql: grade
+      type: string
+      title: grade
+      description: Climbing grade/difficulty
+    - name: color
+      sql: color
+      type: string
+      title: color
+      description: Color of the climb (often used for grading)
+    - name: ascent_type
+      sql: ascent_type
+      type: string
+      title: ascent_type
+      description: Type of ascent (e.g., onsight, flash, redpoint)
+    - name: attempts
+      sql: attempts
+      type: number
+      title: attempts
+      description: Number of attempts to complete the climb
+    - name: rating
+      sql: rating
+      type: number
+      title: rating
+      description: Personal rating of the climb
+    measures:
+    - name: total_climbs
+      sql: '1'
+      type: count
+      title: total_climbs
+      description: Total number of climbs logged
+    - name: climbing_days
+      sql: date
+      type: countDistinct
+      title: climbing_days
+      description: Number of unique climbing days
+    - name: avg_attempts
+      sql: attempts
+      type: avg
+      title: avg_attempts
+      description: Average attempts per climb
+    - name: avg_rating
+      sql: rating
+      type: avg
+      title: avg_rating
+      description: Average climb rating
+    - name: total_attempts
+      sql: attempts
+      type: sum
+      title: total_attempts
+      description: Total attempts across all climbs
+    - name: flash_count
+      sql: '1'
+      type: count
+      title: flash_count
+      description: Number of flash ascents
+      filters:
+      - sql: ascent_type = 'flash'
+    - name: onsight_count
+      sql: '1'
+      type: count
+      title: onsight_count
+      description: Number of onsight ascents
+      filters:
+      - sql: ascent_type = 'onsight'
+    - name: unique_grades
+      sql: grade
+      type: countDistinct
+      title: unique_grades
+      description: Number of different grades climbed
+    - name: unique_gyms
+      sql: gym
+      type: countDistinct
+      title: unique_gyms
+      description: Number of different gyms visited

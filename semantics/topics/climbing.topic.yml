@@ -1,0 +1,13 @@
+name: climbing
+description: "Rock climbing tracking for mobility, movement quality, and body awareness - essential for maintaining functional movement patterns and joint health as part of longevity training"
+base_view: kaya
+views:
+  - kaya
+
+# Questions this topic can answer:
+# - How often am I climbing?
+# - What grades am I climbing consistently?
+# - How many flashes vs projects am I working on?
+# - What's my average attempts per climb?
+# - Which gyms do I climb at most?
+# - Am I progressing to harder grades?

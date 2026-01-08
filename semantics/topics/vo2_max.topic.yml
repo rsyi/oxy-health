@@ -1,0 +1,13 @@
+name: vo2_max
+description: "VO2 max training using Norwegian 4x4 protocol for cardiovascular fitness and aerobic capacity - one of the strongest predictors of longevity and cognitive health"
+base_view: four_by_four
+views:
+  - four_by_four
+
+# Questions this topic can answer:
+# - How often am I doing VO2 max training?
+# - What's my average treadmill speed/incline?
+# - Am I consistently reaching zone 5 (VO2 max zone)?
+# - How has my speed progressed over time?
+# - What's my zone 5 success rate?
+# - Am I meeting the recommended frequency for VO2 max training?

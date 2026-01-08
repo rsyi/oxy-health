@@ -1,0 +1,129 @@
+name: body_composition
+description: "Body composition tracking including weight and body fat percentage measurements using Omron scale for monitoring lean mass and body composition trends"
+datasource: motherduck
+table: body.body_composition_tracker
+
+entities:
+  - name: measurement
+    type: primary
+    description: "Individual body composition measurement"
+    key: measurement_id
+
+dimensions:
+  - name: measurement_id
+    type: string
+    description: "Unique identifier for each measurement"
+    expr: "CAST(\"Datetime (Local)\" AS VARCHAR)"
+
+  - name: datetime
+    type: datetime
+    description: "Timestamp of measurement"
+    expr: "\"Datetime (Local)\""
+
+  - name: date
+    type: date
+    description: "Date of measurement"
+    expr: "CAST(\"Datetime (Local)\" AS DATE)"
+
+  - name: year
+    type: number
+    description: "Year of measurement"
+    expr: "EXTRACT(YEAR FROM \"Datetime (Local)\")"
+
+  - name: month
+    type: string
+    description: "Year-Month in YYYY-MM format for aggregation"
+    expr: "STRFTIME(CAST(\"Datetime (Local)\" AS DATE), '%Y-%m')"
+    synonyms: ["year-month", "month"]
+
+  - name: week
+    type: string
+    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    expr: "STRFTIME(DATE_TRUNC('week', CAST(\"Datetime (Local)\" AS DATE)), '%Y-%m-%d')"
+    synonyms: ["week start", "week"]
+
+  - name: weight
+    type: number
+    description: "Body weight in pounds"
+    expr: "\"Weight (lbs)\""
+    synonyms: ["bodyweight", "weight in lbs"]
+
+  - name: body_fat
+    type: number
+    description: "Body fat percentage measured via Omron scale"
+    expr: "\"Body Fat % (Omron)\""
+    synonyms: ["body fat percentage", "bf%", "body fat"]
+
+  - name: lean_mass
+    type: number
+    description: "Estimated lean body mass (weight × (1 - body_fat%))"
+    expr: "\"Weight (lbs)\" * (1 - \"Body Fat % (Omron)\" / 100.0)"
+    synonyms: ["lean body mass", "lbm", "muscle mass"]
+
+  - name: fat_mass
+    type: number
+    description: "Estimated fat mass (weight × body_fat%)"
+    expr: "\"Weight (lbs)\" * (\"Body Fat % (Omron)\" / 100.0)"
+    synonyms: ["body fat mass"]
+
+measures:
+  - name: total_measurements
+    type: count
+    description: "Total number of body composition measurements"
+
+  - name: avg_weight
+    type: average
+    description: "Average body weight"
+    expr: "\"Weight (lbs)\""
+    synonyms: ["mean weight"]
+
+  - name: avg_body_fat
+    type: average
+    description: "Average body fat percentage (only non-null measurements)"
+    expr: "\"Body Fat % (Omron)\""
+    synonyms: ["mean body fat"]
+
+  - name: avg_lean_mass
+    type: average
+    description: "Average lean body mass (only for dates with body fat measurements)"
+    expr: "\"Weight (lbs)\" * (1 - \"Body Fat % (Omron)\" / 100.0)"
+    filters:
+      - expr: "\"Body Fat % (Omron)\" IS NOT NULL"
+    synonyms: ["mean lean mass", "average muscle mass"]
+
+  - name: avg_fat_mass
+    type: average
+    description: "Average fat mass (only for dates with body fat measurements)"
+    expr: "\"Weight (lbs)\" * (\"Body Fat % (Omron)\" / 100.0)"
+    filters:
+      - expr: "\"Body Fat % (Omron)\" IS NOT NULL"
+
+  - name: min_weight
+    type: min
+    description: "Minimum weight in period"
+    expr: "\"Weight (lbs)\""
+
+  - name: max_weight
+    type: max
+    description: "Maximum weight in period"
+    expr: "\"Weight (lbs)\""
+
+  - name: min_body_fat
+    type: min
+    description: "Minimum body fat % in period"
+    expr: "\"Body Fat % (Omron)\""
+
+  - name: max_body_fat
+    type: max
+    description: "Maximum body fat % in period"
+    expr: "\"Body Fat % (Omron)\""
+
+  - name: weight_variance
+    type: custom
+    description: "Standard deviation of weight measurements"
+    expr: "STDDEV_SAMP(\"Weight (lbs)\")"
+
+  - name: body_fat_variance
+    type: custom
+    description: "Standard deviation of body fat measurements (only non-null)"
+    expr: "STDDEV_SAMP(\"Body Fat % (Omron)\")"

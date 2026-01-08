@@ -1,0 +1,118 @@
+cubes:
+  - name: body_composition
+    sql_table: body.body_composition_tracker
+    data_source: motherduck
+    title: body_composition
+    description: Body composition tracking including weight and body fat percentage measurements using Omron scale for monitoring lean mass and body composition trends
+    dimensions:
+    - name: measurement_id
+      sql: CAST("Datetime (Local)" AS VARCHAR)
+      type: string
+      title: measurement_id
+      description: Unique identifier for each measurement
+      primary_key: true
+    - name: datetime
+      sql: '"Datetime (Local)"'
+      type: time
+      title: datetime
+      description: Timestamp of measurement
+    - name: date
+      sql: CAST("Datetime (Local)" AS DATE)
+      type: time
+      title: date
+      description: Date of measurement
+    - name: year
+      sql: EXTRACT(YEAR FROM "Datetime (Local)")
+      type: number
+      title: year
+      description: Year of measurement
+    - name: month
+      sql: STRFTIME(CAST("Datetime (Local)" AS DATE), '%Y-%m')
+      type: string
+      title: month
+      description: Year-Month in YYYY-MM format for aggregation
+    - name: week
+      sql: STRFTIME(DATE_TRUNC('week', CAST("Datetime (Local)" AS DATE)), '%Y-%m-%d')
+      type: string
+      title: week
+      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: weight
+      sql: '"Weight (lbs)"'
+      type: number
+      title: weight
+      description: Body weight in pounds
+    - name: body_fat
+      sql: '"Body Fat % (Omron)"'
+      type: number
+      title: body_fat
+      description: Body fat percentage measured via Omron scale
+    - name: lean_mass
+      sql: '"Weight (lbs)" * (1 - "Body Fat % (Omron)" / 100.0)'
+      type: number
+      title: lean_mass
+      description: Estimated lean body mass (weight × (1 - body_fat%))
+    - name: fat_mass
+      sql: '"Weight (lbs)" * ("Body Fat % (Omron)" / 100.0)'
+      type: number
+      title: fat_mass
+      description: Estimated fat mass (weight × body_fat%)
+    measures:
+    - name: total_measurements
+      sql: '1'
+      type: count
+      title: total_measurements
+      description: Total number of body composition measurements
+    - name: avg_weight
+      sql: '"Weight (lbs)"'
+      type: avg
+      title: avg_weight
+      description: Average body weight
+    - name: avg_body_fat
+      sql: '"Body Fat % (Omron)"'
+      type: avg
+      title: avg_body_fat
+      description: Average body fat percentage (only non-null measurements)
+    - name: avg_lean_mass
+      sql: '"Weight (lbs)" * (1 - "Body Fat % (Omron)" / 100.0)'
+      type: avg
+      title: avg_lean_mass
+      description: Average lean body mass (only for dates with body fat measurements)
+      filters:
+      - sql: '"Body Fat % (Omron)" IS NOT NULL'
+    - name: avg_fat_mass
+      sql: '"Weight (lbs)" * ("Body Fat % (Omron)" / 100.0)'
+      type: avg
+      title: avg_fat_mass
+      description: Average fat mass (only for dates with body fat measurements)
+      filters:
+      - sql: '"Body Fat % (Omron)" IS NOT NULL'
+    - name: min_weight
+      sql: '"Weight (lbs)"'
+      type: min
+      title: min_weight
+      description: Minimum weight in period
+    - name: max_weight
+      sql: '"Weight (lbs)"'
+      type: max
+      title: max_weight
+      description: Maximum weight in period
+    - name: min_body_fat
+      sql: '"Body Fat % (Omron)"'
+      type: min
+      title: min_body_fat
+      description: Minimum body fat % in period
+    - name: max_body_fat
+      sql: '"Body Fat % (Omron)"'
+      type: max
+      title: max_body_fat
+      description: Maximum body fat % in period
+    - name: weight_variance
+      sql: STDDEV_SAMP("Weight (lbs)")
+      type: number
+      title: weight_variance
+      description: Standard deviation of weight measurements
+    - name: body_fat_variance
+      sql: STDDEV_SAMP("Body Fat % (Omron)")
+      type: number
+      title: body_fat_variance
+      description: Standard deviation of body fat measurements (only non-null)

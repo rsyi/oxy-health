@@ -1,0 +1,135 @@
+name: kaya
+description: "Rock climbing tracking for mobility and movement quality. Tracks climbs by grade, attempts, and ascent type for monitoring climbing progression and mobility work."
+datasource: motherduck
+table: exercise.kaya
+
+entities:
+  - name: climb
+    type: primary
+    description: "Individual climb attempt or session"
+    key: climb_id
+
+  - name: climbing_day
+    type: foreign
+    description: "Day of climbing session"
+    key: date
+
+dimensions:
+  - name: climb_id
+    type: string
+    description: "Unique identifier for climb (date + climb_name + gym)"
+    expr: "CONCAT(CAST(date AS VARCHAR), '_', climb_name, '_', gym)"
+
+  - name: date
+    type: date
+    description: "Date of climbing session"
+    expr: "date"
+
+  - name: year
+    type: number
+    description: "Year of climb"
+    expr: "EXTRACT(YEAR FROM date)"
+
+  - name: month
+    type: string
+    description: "Year-Month in YYYY-MM format for aggregation"
+    expr: "STRFTIME(date, '%Y-%m')"
+    synonyms: ["year-month", "month"]
+
+  - name: week
+    type: string
+    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    expr: "STRFTIME(DATE_TRUNC('week', date), '%Y-%m-%d')"
+    synonyms: ["week start", "week"]
+
+  - name: climb_name
+    type: string
+    description: "Name or identifier of the climb"
+    expr: "climb_name"
+    synonyms: ["route name", "problem name"]
+
+  - name: gym
+    type: string
+    description: "Gym or climbing location"
+    expr: "gym"
+    synonyms: ["location", "climbing gym"]
+
+  - name: grade
+    type: string
+    description: "Climbing grade/difficulty"
+    expr: "grade"
+    synonyms: ["difficulty", "route grade"]
+
+  - name: color
+    type: string
+    description: "Color of the climb (often used for grading)"
+    expr: "color"
+    synonyms: ["route color", "tape color"]
+
+  - name: ascent_type
+    type: string
+    description: "Type of ascent (e.g., onsight, flash, redpoint)"
+    expr: "ascent_type"
+    synonyms: ["send type", "completion type"]
+
+  - name: attempts
+    type: number
+    description: "Number of attempts to complete the climb"
+    expr: "attempts"
+    synonyms: ["tries"]
+
+  - name: rating
+    type: number
+    description: "Personal rating of the climb"
+    expr: "rating"
+    synonyms: ["difficulty rating", "personal rating"]
+
+measures:
+  - name: total_climbs
+    type: count
+    description: "Total number of climbs logged"
+    synonyms: ["climb count"]
+
+  - name: climbing_days
+    type: count_distinct
+    description: "Number of unique climbing days"
+    expr: "date"
+    synonyms: ["climbing sessions", "days climbed"]
+
+  - name: avg_attempts
+    type: average
+    description: "Average attempts per climb"
+    expr: "attempts"
+    synonyms: ["mean attempts"]
+
+  - name: avg_rating
+    type: average
+    description: "Average climb rating"
+    expr: "rating"
+
+  - name: total_attempts
+    type: sum
+    description: "Total attempts across all climbs"
+    expr: "attempts"
+
+  - name: flash_count
+    type: count
+    description: "Number of flash ascents"
+    filters:
+      - expr: "ascent_type = 'flash'"
+
+  - name: onsight_count
+    type: count
+    description: "Number of onsight ascents"
+    filters:
+      - expr: "ascent_type = 'onsight'"
+
+  - name: unique_grades
+    type: count_distinct
+    description: "Number of different grades climbed"
+    expr: "grade"
+
+  - name: unique_gyms
+    type: count_distinct
+    description: "Number of different gyms visited"
+    expr: "gym"

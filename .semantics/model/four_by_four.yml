@@ -1,0 +1,106 @@
+cubes:
+  - name: four_by_four
+    sql_table: exercise.four_by_four
+    data_source: motherduck
+    title: four_by_four
+    description: Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity.
+    dimensions:
+    - name: session_id
+      sql: CAST(Date AS VARCHAR)
+      type: string
+      title: session_id
+      description: Unique identifier for each session
+      primary_key: true
+    - name: date
+      sql: Date
+      type: time
+      title: date
+      description: Date of VO2 max session
+    - name: year
+      sql: EXTRACT(YEAR FROM Date)
+      type: number
+      title: year
+      description: Year of session
+    - name: month
+      sql: STRFTIME(Date, '%Y-%m')
+      type: string
+      title: month
+      description: Year-Month in YYYY-MM format for aggregation
+    - name: week
+      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
+      type: string
+      title: week
+      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: treadmill_speed
+      sql: '"Treadmill Speed (mph)"'
+      type: number
+      title: treadmill_speed
+      description: Treadmill speed in miles per hour
+    - name: treadmill_incline
+      sql: '"Treadmill Incline (%)"'
+      type: number
+      title: treadmill_incline
+      description: Treadmill incline percentage
+    - name: zone_5_reached
+      sql: '"Time Zone 5 Reached"'
+      type: string
+      title: zone_5_reached
+      description: Whether heart rate zone 5 was reached (VO2 max zone)
+    - name: total_time
+      sql: '"Total Time"'
+      type: string
+      title: total_time
+      description: Total workout time
+    - name: notes
+      sql: Notes
+      type: string
+      title: notes
+      description: Session notes and observations
+    measures:
+    - name: total_sessions
+      sql: '1'
+      type: count
+      title: total_sessions
+      description: Total number of VO2 max sessions
+    - name: training_frequency
+      sql: Date
+      type: countDistinct
+      title: training_frequency
+      description: Number of unique training days
+    - name: avg_speed
+      sql: '"Treadmill Speed (mph)"'
+      type: avg
+      title: avg_speed
+      description: Average treadmill speed across sessions
+    - name: max_speed
+      sql: '"Treadmill Speed (mph)"'
+      type: max
+      title: max_speed
+      description: Maximum treadmill speed achieved
+    - name: min_speed
+      sql: '"Treadmill Speed (mph)"'
+      type: min
+      title: min_speed
+      description: Minimum treadmill speed
+    - name: avg_incline
+      sql: '"Treadmill Incline (%)"'
+      type: avg
+      title: avg_incline
+      description: Average treadmill incline
+    - name: max_incline
+      sql: '"Treadmill Incline (%)"'
+      type: max
+      title: max_incline
+      description: Maximum treadmill incline achieved
+    - name: zone_5_success_rate
+      sql: COUNT(CASE WHEN "Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '' THEN 1 END) * 100.0 / COUNT(*)
+      type: number
+      title: zone_5_success_rate
+      description: Percentage of sessions reaching zone 5
+    - name: sessions_reaching_zone_5
+      sql: '1'
+      type: count
+      title: sessions_reaching_zone_5
+      description: Number of sessions that reached zone 5
+      filters:
+      - sql: '"Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '''''

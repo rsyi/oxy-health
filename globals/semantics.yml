@@ -1,0 +1,59 @@
+dimensions:
+- name: Carbs (g)
+  targets:
+  - motherduck.nutrition.macro_tracker.Carbs (g)
+- name: Calories (kcal)
+  targets:
+  - motherduck.nutrition.macro_tracker.Calories (kcal)
+- name: Protein (g)
+  targets:
+  - motherduck.nutrition.macro_tracker.Protein (g)
+- name: Date
+  targets:
+  - motherduck.nutrition.macro_tracker.Date
+  - motherduck.exercise.four_by_four.Date
+- name: Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker.Fat (g)
+- name: stiffness
+  targets:
+  - motherduck.exercise.kaya.stiffness
+- name: date
+  targets:
+  - motherduck.exercise.kaya.date
+- name: attempts
+  targets:
+  - motherduck.exercise.kaya.attempts
+- name: gym
+  targets:
+  - motherduck.exercise.kaya.gym
+- name: grade
+  targets:
+  - motherduck.exercise.kaya.grade
+- name: color
+  targets:
+  - motherduck.exercise.kaya.color
+- name: rating
+  targets:
+  - motherduck.exercise.kaya.rating
+- name: ascent_type
+  targets:
+  - motherduck.exercise.kaya.ascent_type
+- name: climb_name
+  targets:
+  - motherduck.exercise.kaya.climb_name
+- name: Treadmill Incline (%)
+  targets:
+  - motherduck.exercise.four_by_four.Treadmill Incline (%)
+- name: Time Zone 5 Reached
+  targets:
+  - motherduck.exercise.four_by_four.Time Zone 5 Reached
+- name: Treadmill Speed (mph)
+  targets:
+  - motherduck.exercise.four_by_four.Treadmill Speed (mph)
+- name: Notes
+  targets:
+  - motherduck.exercise.four_by_four.Notes
+- name: Total Time
+  targets:
+  - motherduck.exercise.four_by_four.Total Time

@@ -1,0 +1,238 @@
+name: strength_tracker
+description: "Strength training tracking including exercises, sets, reps, and RPE for calculating 1RM and training volume. Focuses on main compound lifts: Overhead Press, Barbell Squat, Barbell Deadlift, and Flat Barbell Bench Press. Uses Lombardi formula for 1RM estimation."
+datasource: motherduck
+table: exercise.strength_tracker
+
+entities:
+  - name: workout_set
+    type: primary
+    description: "Individual set of an exercise"
+    key: set_id
+
+  - name: training_day
+    type: foreign
+    description: "Training day for the workout"
+    key: date
+
+dimensions:
+  - name: set_id
+    type: string
+    description: "Unique identifier for each set (generated from date, exercise, and start time)"
+    expr: "CONCAT(CAST(Date AS VARCHAR), '_', Exercise, '_', CAST(\"Start Time\" AS VARCHAR))"
+
+  - name: date
+    type: date
+    description: "Date of the workout"
+    expr: "Date"
+
+  - name: year
+    type: number
+    description: "Year of the workout"
+    expr: "EXTRACT(YEAR FROM Date)"
+
+  - name: month
+    type: string
+    description: "Year-Month in YYYY-MM format for aggregation"
+    expr: "STRFTIME(Date, '%Y-%m')"
+    synonyms: ["year-month", "month"]
+
+  - name: week
+    type: string
+    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    synonyms: ["week start", "week"]
+
+  - name: day_of_week
+    type: string
+    description: "Day of week name"
+    expr: "\"Day of Week\""
+    synonyms: ["weekday"]
+
+  - name: exercise
+    type: string
+    description: "Name of the exercise performed"
+    expr: "Exercise"
+    synonyms: ["lift", "movement", "exercise name"]
+
+  - name: is_main_lift
+    type: boolean
+    description: "Whether this is one of the four main compound lifts"
+    expr: "Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')"
+    synonyms: ["main compound lift", "primary lift"]
+
+  - name: weight
+    type: number
+    description: "Weight lifted in pounds"
+    expr: "Weight"
+    synonyms: ["load", "weight lifted"]
+
+  - name: reps
+    type: number
+    description: "Number of repetitions performed"
+    expr: "Reps"
+    synonyms: ["repetitions"]
+
+  - name: rpe
+    type: number
+    description: "Rate of Perceived Exertion (1-10 scale)"
+    expr: "RPE"
+    synonyms: ["difficulty", "effort level"]
+
+  - name: start_time
+    type: datetime
+    description: "Timestamp when set was started"
+    expr: "\"Start Time\""
+
+  - name: estimated_1rm
+    type: number
+    description: "Estimated one-rep max using Lombardi formula: weight * reps^0.1"
+    expr: "Weight * POWER(Reps, 0.1)"
+    synonyms: ["1RM", "one rep max", "max strength"]
+
+  - name: volume
+    type: number
+    description: "Training volume for the set (weight × reps)"
+    expr: "Weight * Reps"
+    synonyms: ["work", "total volume"]
+
+  - name: intensity
+    type: number
+    description: "Relative intensity as percentage of estimated 1RM"
+    expr: "(Weight / (Weight * POWER(Reps, 0.1))) * 100"
+    synonyms: ["% of 1RM", "intensity percentage"]
+
+measures:
+  - name: total_sets
+    type: count
+    description: "Total number of sets performed"
+    synonyms: ["set count"]
+
+  - name: main_lift_sets
+    type: count
+    description: "Total sets of main compound lifts only"
+    filters:
+      - expr: "Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')"
+
+  - name: total_volume
+    type: sum
+    description: "Total training volume (sum of weight × reps)"
+    expr: "Weight * Reps"
+    synonyms: ["total work", "cumulative volume"]
+
+  - name: main_lift_volume
+    type: sum
+    description: "Total volume for main compound lifts only"
+    expr: "Weight * Reps"
+    filters:
+      - expr: "Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')"
+
+  - name: training_frequency
+    type: count_distinct
+    description: "Number of unique training days"
+    expr: "Date"
+    synonyms: ["workout days", "training days"]
+
+  # Barbell Squat Metrics
+  - name: max_squat_1rm
+    type: max
+    description: "Maximum estimated 1RM for barbell squat using Lombardi formula"
+    expr: "Weight * POWER(Reps, 0.1)"
+    filters:
+      - expr: "Exercise = 'Barbell Squat'"
+    synonyms: ["squat 1RM", "max squat"]
+
+  - name: total_volume_squat
+    type: sum
+    description: "Total volume for barbell squat"
+    expr: "Weight * Reps"
+    filters:
+      - expr: "Exercise = 'Barbell Squat'"
+    synonyms: ["squat volume"]
+
+  - name: squat_sets
+    type: count
+    description: "Number of barbell squat sets"
+    filters:
+      - expr: "Exercise = 'Barbell Squat'"
+
+  # Deadlift Metrics
+  - name: max_deadlift_1rm
+    type: max
+    description: "Maximum estimated 1RM for deadlift using Lombardi formula"
+    expr: "Weight * POWER(Reps, 0.1)"
+    filters:
+      - expr: "Exercise = 'Barbell Deadlift'"
+    synonyms: ["deadlift 1RM", "max deadlift"]
+
+  - name: total_volume_deadlift
+    type: sum
+    description: "Total volume for deadlift"
+    expr: "Weight * Reps"
+    filters:
+      - expr: "Exercise = 'Barbell Deadlift'"
+    synonyms: ["deadlift volume"]
+
+  - name: deadlift_sets
+    type: count
+    description: "Number of deadlift sets"
+    filters:
+      - expr: "Exercise = 'Barbell Deadlift'"
+
+  # Bench Press Metrics
+  - name: max_bench_1rm
+    type: max
+    description: "Maximum estimated 1RM for bench press using Lombardi formula"
+    expr: "Weight * POWER(Reps, 0.1)"
+    filters:
+      - expr: "Exercise = 'Flat Barbell Bench Press'"
+    synonyms: ["bench 1RM", "max bench"]
+
+  - name: total_volume_bench
+    type: sum
+    description: "Total volume for bench press"
+    expr: "Weight * Reps"
+    filters:
+      - expr: "Exercise = 'Flat Barbell Bench Press'"
+    synonyms: ["bench volume"]
+
+  - name: bench_sets
+    type: count
+    description: "Number of bench press sets"
+    filters:
+      - expr: "Exercise = 'Flat Barbell Bench Press'"
+
+  # Overhead Press Metrics
+  - name: max_overhead_press_1rm
+    type: max
+    description: "Maximum estimated 1RM for overhead press using Lombardi formula"
+    expr: "Weight * POWER(Reps, 0.1)"
+    filters:
+      - expr: "Exercise = 'Overhead Press'"
+    synonyms: ["OHP 1RM", "max overhead press"]
+
+  - name: total_volume_overhead_press
+    type: sum
+    description: "Total volume for overhead press"
+    expr: "Weight * Reps"
+    filters:
+      - expr: "Exercise = 'Overhead Press'"
+    synonyms: ["OHP volume", "overhead press volume"]
+
+  - name: overhead_press_sets
+    type: count
+    description: "Number of overhead press sets"
+    filters:
+      - expr: "Exercise = 'Overhead Press'"
+
+  # General metrics
+  - name: avg_rpe
+    type: average
+    description: "Average rate of perceived exertion"
+    expr: "RPE"
+    synonyms: ["mean RPE", "average effort"]
+
+  - name: high_intensity_sets
+    type: count
+    description: "Number of sets with RPE >= 8"
+    filters:
+      - expr: "RPE >= 8"

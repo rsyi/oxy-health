@@ -1,156 +1,35 @@
 tasks:
-  - name: deadlift_1rm
-    type: execute_sql
-    sql_query: |
-      WITH per_month AS (
-          SELECT
-              DATE_TRUNC('month', Date) AS month,
-              weight,
-              reps,
-              weight * (POWER(reps, 0.1)) AS est_1RM
-          FROM personal_data.exercise.strength_tracker
-          WHERE Exercise = 'Barbell Deadlift'
-      ),
-      max_per_month AS (
-          SELECT
-              month,
-              MAX(est_1RM) AS max_estimated_1RM
-          FROM per_month
-          GROUP BY month
-      )
-      SELECT
-          strftime(m.month, '%Y-%m') as month,
-          m.max_estimated_1RM,
-          p.weight AS corresponding_weight,
-          p.reps AS corresponding_reps
-      FROM max_per_month m
-      JOIN per_month p
-        ON p.month = m.month
-       AND p.est_1RM = m.max_estimated_1RM
-      ORDER BY m.month
-    database: motherduck
+  - name: deadlift_monthly_max
+    type: semantic_query
+    topic: strength
+    dimensions:
+      - strength_tracker.month
+    measures:
+      - strength_tracker.max_deadlift_1rm
 
-  - name: bench_press_1rm
-    type: execute_sql
-    sql_query: |
-      WITH per_month AS (
-          SELECT
-              DATE_TRUNC('month', Date) AS month,
-              weight,
-              reps,
-              weight * (POWER(reps, 0.1)) AS est_1RM
-          FROM personal_data.exercise.strength_tracker
-          WHERE Exercise = 'Flat Barbell Bench Press'
-      ),
-      max_per_month AS (
-          SELECT
-              month,
-              MAX(est_1RM) AS max_estimated_1RM
-          FROM per_month
-          GROUP BY month
-      )
-      SELECT
-          strftime(m.month, '%Y-%m') as month,
-          m.max_estimated_1RM,
-          p.weight AS corresponding_weight,
-          p.reps AS corresponding_reps
-      FROM max_per_month m
-      JOIN per_month p
-        ON p.month = m.month
-       AND p.est_1RM = m.max_estimated_1RM
-      ORDER BY m.month
-    database: motherduck
+  - name: bench_monthly_max
+    type: semantic_query
+    topic: strength
+    dimensions:
+      - strength_tracker.month
+    measures:
+      - strength_tracker.max_bench_1rm
 
-  - name: squat_1rm
-    type: execute_sql
-    sql_query: |
-      WITH per_month AS (
-          SELECT
-              DATE_TRUNC('month', Date) AS month,
-              weight,
-              reps,
-              weight * (POWER(reps, 0.1)) AS est_1RM
-          FROM personal_data.exercise.strength_tracker
-          WHERE Exercise = 'Barbell Squat'
-      ),
-      max_per_month AS (
-          SELECT
-              month,
-              MAX(est_1RM) AS max_estimated_1RM
-          FROM per_month
-          GROUP BY month
-      )
-      SELECT
-          strftime(m.month, '%Y-%m') as month,
-          m.max_estimated_1RM,
-          p.weight AS corresponding_weight,
-          p.reps AS corresponding_reps
-      FROM max_per_month m
-      JOIN per_month p
-        ON p.month = m.month
-       AND p.est_1RM = m.max_estimated_1RM
-      ORDER BY m.month
-    database: motherduck
+  - name: squat_monthly_max
+    type: semantic_query
+    topic: strength
+    dimensions:
+      - strength_tracker.month
+    measures:
+      - strength_tracker.max_squat_1rm
 
-  - name: overhead_press_1rm
-    type: execute_sql
-    sql_query: |
-      WITH per_month AS (
-          SELECT
-              DATE_TRUNC('month', Date) AS month,
-              weight,
-              reps,
-              weight * (POWER(reps, 0.1)) AS est_1RM
-          FROM personal_data.exercise.strength_tracker
-          WHERE Exercise = 'Overhead Press'
-      ),
-      max_per_month AS (
-          SELECT
-              month,
-              MAX(est_1RM) AS max_estimated_1RM
-          FROM per_month
-          GROUP BY month
-      )
-      SELECT
-          strftime(m.month, '%Y-%m') as month,
-          m.max_estimated_1RM,
-          p.weight AS corresponding_weight,
-          p.reps AS corresponding_reps
-      FROM max_per_month m
-      JOIN per_month p
-        ON p.month = m.month
-       AND p.est_1RM = m.max_estimated_1RM
-      ORDER BY m.month
-    database: motherduck
-
-  - name: all_exercises_combined
-    type: execute_sql
-    sql_query: |
-      WITH per_month AS (
-          SELECT
-              Exercise,
-              DATE_TRUNC('month', Date) AS month,
-              weight,
-              reps,
-              weight * (POWER(reps, 0.1)) AS est_1RM
-          FROM personal_data.exercise.strength_tracker
-          WHERE Exercise IN ('Barbell Deadlift', 'Flat Barbell Bench Press', 'Barbell Squat', 'Overhead Press')
-      ),
-      max_per_month AS (
-          SELECT
-              Exercise,
-              month,
-              MAX(est_1RM) AS max_estimated_1RM
-          FROM per_month
-          GROUP BY Exercise, month
-      )
-      SELECT
-          m.Exercise,
-          strftime(m.month, '%Y-%m') as month,
-          m.max_estimated_1RM
-      FROM max_per_month m
-      ORDER BY m.month, m.Exercise
-    database: motherduck
+  - name: overhead_press_monthly_max
+    type: semantic_query
+    topic: strength
+    dimensions:
+      - strength_tracker.month
+    measures:
+      - strength_tracker.max_overhead_press_1rm
 
 display:
   - type: markdown
@@ -160,61 +39,52 @@ display:
       Track your estimated 1 Rep Max (1RM) progression over time using the Lombardi formula:
       **1RM = Weight × (Reps^0.1)**
 
-      This dashboard shows your strength progression across major compound lifts.
-
-  - type: line_chart
-    title: All Exercises - 1RM Progression Over Time
-    data: all_exercises_combined
-    x: month
-    y: max_estimated_1RM
-    series: Exercise
-    x_axis_label: Month
-    y_axis_label: Estimated 1RM (lbs)
+      This dashboard shows your strength progression across major compound lifts using the semantic layer.
 
   - type: line_chart
     title: Deadlift - 1RM Progression
-    data: deadlift_1rm
-    x: month
-    y: max_estimated_1RM
+    data: deadlift_monthly_max
+    x: strength_tracker__month
+    y: strength_tracker__max_deadlift_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
 
   - type: line_chart
     title: Bench Press - 1RM Progression
-    data: bench_press_1rm
-    x: month
-    y: max_estimated_1RM
+    data: bench_monthly_max
+    x: strength_tracker__month
+    y: strength_tracker__max_bench_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
 
   - type: line_chart
     title: Squat - 1RM Progression
-    data: squat_1rm
-    x: month
-    y: max_estimated_1RM
+    data: squat_monthly_max
+    x: strength_tracker__month
+    y: strength_tracker__max_squat_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
 
   - type: line_chart
     title: Overhead Press - 1RM Progression
-    data: overhead_press_1rm
-    x: month
-    y: max_estimated_1RM
+    data: overhead_press_monthly_max
+    x: strength_tracker__month
+    y: strength_tracker__max_overhead_press_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
 
   - type: table
-    title: Deadlift - Detailed Monthly Data
-    data: deadlift_1rm
+    title: Deadlift - Progression Data
+    data: deadlift_monthly_max
 
   - type: table
-    title: Bench Press - Detailed Monthly Data
-    data: bench_press_1rm
+    title: Bench Press - Progression Data
+    data: bench_monthly_max
 
   - type: table
-    title: Squat - Detailed Monthly Data
-    data: squat_1rm
+    title: Squat - Progression Data
+    data: squat_monthly_max
 
   - type: table
-    title: Overhead Press - Detailed Monthly Data
-    data: overhead_press_1rm
+    title: Overhead Press - Progression Data
+    data: overhead_press_monthly_max

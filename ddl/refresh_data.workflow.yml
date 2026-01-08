@@ -1,0 +1,33 @@
+name: refresh_data
+description: "Refresh all health tracking data by running all SQL queries"
+
+tasks:
+  - name: refresh_body_composition
+    description: "Refresh body composition tracking data"
+    type: execute_sql
+    database: motherduck
+    sql_file: ddl/body_composition_tracker.sql
+
+  - name: refresh_strength
+    description: "Refresh strength training data"
+    type: execute_sql
+    database: motherduck
+    sql_file: ddl/strength_tracker.sql
+
+  - name: refresh_four_by_four
+    description: "Refresh four by four workout data"
+    type: execute_sql
+    database: motherduck
+    sql_file: ddl/four_by_four.sql
+
+  - name: refresh_kaya
+    description: "Refresh kaya data"
+    type: execute_sql
+    database: motherduck
+    sql_file: ddl/kaya.sql
+
+  - name: refresh_macros
+    description: "Refresh macro tracking data"
+    type: execute_sql
+    database: motherduck
+    sql_file: ddl/macro_tracker.sql

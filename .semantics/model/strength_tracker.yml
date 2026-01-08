@@ -1,0 +1,209 @@
+cubes:
+  - name: strength_tracker
+    sql_table: exercise.strength_tracker
+    data_source: motherduck
+    title: strength_tracker
+    description: 'Strength training tracking including exercises, sets, reps, and RPE for calculating 1RM and training volume. Focuses on main compound lifts: Overhead Press, Barbell Squat, Barbell Deadlift, and Flat Barbell Bench Press. Uses Lombardi formula for 1RM estimation.'
+    dimensions:
+    - name: set_id
+      sql: CONCAT(CAST(Date AS VARCHAR), '_', Exercise, '_', CAST("Start Time" AS VARCHAR))
+      type: string
+      title: set_id
+      description: Unique identifier for each set (generated from date, exercise, and start time)
+      primary_key: true
+    - name: date
+      sql: Date
+      type: time
+      title: date
+      description: Date of the workout
+    - name: year
+      sql: EXTRACT(YEAR FROM Date)
+      type: number
+      title: year
+      description: Year of the workout
+    - name: month
+      sql: STRFTIME(Date, '%Y-%m')
+      type: string
+      title: month
+      description: Year-Month in YYYY-MM format for aggregation
+    - name: week
+      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
+      type: string
+      title: week
+      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: day_of_week
+      sql: '"Day of Week"'
+      type: string
+      title: day_of_week
+      description: Day of week name
+    - name: exercise
+      sql: Exercise
+      type: string
+      title: exercise
+      description: Name of the exercise performed
+    - name: is_main_lift
+      sql: Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')
+      type: boolean
+      title: is_main_lift
+      description: Whether this is one of the four main compound lifts
+    - name: weight
+      sql: Weight
+      type: number
+      title: weight
+      description: Weight lifted in pounds
+    - name: reps
+      sql: Reps
+      type: number
+      title: reps
+      description: Number of repetitions performed
+    - name: rpe
+      sql: RPE
+      type: number
+      title: rpe
+      description: Rate of Perceived Exertion (1-10 scale)
+    - name: start_time
+      sql: '"Start Time"'
+      type: time
+      title: start_time
+      description: Timestamp when set was started
+    - name: estimated_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: number
+      title: estimated_1rm
+      description: 'Estimated one-rep max using Lombardi formula: weight * reps^0.1'
+    - name: volume
+      sql: Weight * Reps
+      type: number
+      title: volume
+      description: Training volume for the set (weight × reps)
+    - name: intensity
+      sql: (Weight / (Weight * POWER(Reps, 0.1))) * 100
+      type: number
+      title: intensity
+      description: Relative intensity as percentage of estimated 1RM
+    measures:
+    - name: total_sets
+      sql: '1'
+      type: count
+      title: total_sets
+      description: Total number of sets performed
+    - name: main_lift_sets
+      sql: '1'
+      type: count
+      title: main_lift_sets
+      description: Total sets of main compound lifts only
+      filters:
+      - sql: Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')
+    - name: total_volume
+      sql: Weight * Reps
+      type: sum
+      title: total_volume
+      description: Total training volume (sum of weight × reps)
+    - name: main_lift_volume
+      sql: Weight * Reps
+      type: sum
+      title: main_lift_volume
+      description: Total volume for main compound lifts only
+      filters:
+      - sql: Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')
+    - name: training_frequency
+      sql: Date
+      type: countDistinct
+      title: training_frequency
+      description: Number of unique training days
+    - name: max_squat_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: max
+      title: max_squat_1rm
+      description: Maximum estimated 1RM for barbell squat using Lombardi formula
+      filters:
+      - sql: Exercise = 'Barbell Squat'
+    - name: total_volume_squat
+      sql: Weight * Reps
+      type: sum
+      title: total_volume_squat
+      description: Total volume for barbell squat
+      filters:
+      - sql: Exercise = 'Barbell Squat'
+    - name: squat_sets
+      sql: '1'
+      type: count
+      title: squat_sets
+      description: Number of barbell squat sets
+      filters:
+      - sql: Exercise = 'Barbell Squat'
+    - name: max_deadlift_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: max
+      title: max_deadlift_1rm
+      description: Maximum estimated 1RM for deadlift using Lombardi formula
+      filters:
+      - sql: Exercise = 'Barbell Deadlift'
+    - name: total_volume_deadlift
+      sql: Weight * Reps
+      type: sum
+      title: total_volume_deadlift
+      description: Total volume for deadlift
+      filters:
+      - sql: Exercise = 'Barbell Deadlift'
+    - name: deadlift_sets
+      sql: '1'
+      type: count
+      title: deadlift_sets
+      description: Number of deadlift sets
+      filters:
+      - sql: Exercise = 'Barbell Deadlift'
+    - name: max_bench_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: max
+      title: max_bench_1rm
+      description: Maximum estimated 1RM for bench press using Lombardi formula
+      filters:
+      - sql: Exercise = 'Flat Barbell Bench Press'
+    - name: total_volume_bench
+      sql: Weight * Reps
+      type: sum
+      title: total_volume_bench
+      description: Total volume for bench press
+      filters:
+      - sql: Exercise = 'Flat Barbell Bench Press'
+    - name: bench_sets
+      sql: '1'
+      type: count
+      title: bench_sets
+      description: Number of bench press sets
+      filters:
+      - sql: Exercise = 'Flat Barbell Bench Press'
+    - name: max_overhead_press_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: max
+      title: max_overhead_press_1rm
+      description: Maximum estimated 1RM for overhead press using Lombardi formula
+      filters:
+      - sql: Exercise = 'Overhead Press'
+    - name: total_volume_overhead_press
+      sql: Weight * Reps
+      type: sum
+      title: total_volume_overhead_press
+      description: Total volume for overhead press
+      filters:
+      - sql: Exercise = 'Overhead Press'
+    - name: overhead_press_sets
+      sql: '1'
+      type: count
+      title: overhead_press_sets
+      description: Number of overhead press sets
+      filters:
+      - sql: Exercise = 'Overhead Press'
+    - name: avg_rpe
+      sql: RPE
+      type: avg
+      title: avg_rpe
+      description: Average rate of perceived exertion
+    - name: high_intensity_sets
+      sql: '1'
+      type: count
+      title: high_intensity_sets
+      description: Number of sets with RPE >= 8
+      filters:
+      - sql: RPE >= 8
