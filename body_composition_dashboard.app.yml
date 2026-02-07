@@ -1,0 +1,47 @@
+tasks:
+  - name: body_composition_data
+    type: semantic_query
+    topic: body_composition
+    dimensions:
+      - body_composition.date
+    measures:
+      - body_composition.avg_weight
+      - body_composition.avg_body_fat
+      - body_composition.avg_lean_mass
+    orders:
+      - field: body_composition.date
+        direction: asc
+
+display:
+  - type: markdown
+    content: |
+      # Body Composition Dashboard
+      Track your weight, body fat percentage, and lean mass over time.
+
+  - type: line_chart
+    title: "Weight Over Time"
+    x: body_composition__date
+    y: body_composition__avg_weight
+    data: body_composition_data
+    x_axis_label: "Date"
+    y_axis_label: "Weight (lbs)"
+
+  - type: line_chart
+    title: "Body Fat Percentage Over Time"
+    x: body_composition__date
+    y: body_composition__avg_body_fat
+    data: body_composition_data
+    x_axis_label: "Date"
+    y_axis_label: "Body Fat %"
+
+  - type: line_chart
+    title: "Lean Mass Over Time"
+    x: body_composition__date
+    y: body_composition__avg_lean_mass
+    data: body_composition_data
+    x_axis_label: "Date"
+    y_axis_label: "Lean Mass (lbs)"
+
+  - type: table
+    title: "Detailed Body Composition Data"
+    data: body_composition_data

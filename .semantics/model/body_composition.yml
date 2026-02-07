@@ -116,3 +116,34 @@ cubes:
       type: number
       title: body_fat_variance
       description: Standard deviation of body fat measurements (only non-null)
+    - name: weight_change
+      sql: MAX("Weight (lbs)") - MIN("Weight (lbs)")
+      type: number
+      title: weight_change
+      description: Weight change in period (max weight - min weight). Positive = bulking, negative = cutting
+    - name: weight_trend_slope
+      sql: REGR_SLOPE("Weight (lbs)", EXTRACT(EPOCH FROM "Datetime (Local)") / 86400)
+      type: number
+      title: weight_trend_slope
+      description: Daily rate of weight change (lbs per day). Positive = bulking, negative = cutting, near zero = maintaining
+    - name: avg_weekly_weight_change
+      sql: |
+        (MAX("Weight (lbs)") - MIN("Weight (lbs)")) /
+        NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
+      type: number
+      title: avg_weekly_weight_change
+      description: Average weekly weight change rate. Positive = bulking, negative = cutting
+    - name: estimated_daily_caloric_balance
+      sql: |
+        ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+        NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0)
+      type: number
+      title: estimated_daily_caloric_balance
+      description: Estimated daily caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule
+    - name: estimated_weekly_caloric_balance
+      sql: |
+        ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+        NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
+      type: number
+      title: estimated_weekly_caloric_balance
+      description: Estimated weekly caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule

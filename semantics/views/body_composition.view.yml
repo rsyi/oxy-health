@@ -127,3 +127,39 @@ measures:
     type: custom
     description: "Standard deviation of body fat measurements (only non-null)"
     expr: "STDDEV_SAMP(\"Body Fat % (Omron)\")"
+
+  - name: weight_change
+    type: custom
+    description: "Weight change in period (max weight - min weight). Positive = bulking, negative = cutting"
+    expr: "MAX(\"Weight (lbs)\") - MIN(\"Weight (lbs)\")"
+    synonyms: ["weight difference", "total weight change", "weight delta"]
+
+  - name: weight_trend_slope
+    type: custom
+    description: "Daily rate of weight change (lbs per day). Positive = bulking, negative = cutting, near zero = maintaining"
+    expr: "REGR_SLOPE(\"Weight (lbs)\", EXTRACT(EPOCH FROM \"Datetime (Local)\") / 86400)"
+    synonyms: ["weight trend", "weight trajectory", "daily weight change rate"]
+
+  - name: avg_weekly_weight_change
+    type: custom
+    description: "Average weekly weight change rate. Positive = bulking, negative = cutting"
+    expr: |
+      (MAX("Weight (lbs)") - MIN("Weight (lbs)")) /
+      NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
+    synonyms: ["weekly weight change", "weight change per week", "weekly weight rate"]
+
+  - name: estimated_daily_caloric_balance
+    type: custom
+    description: "Estimated daily caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule"
+    expr: |
+      ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+      NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0)
+    synonyms: ["daily caloric balance", "caloric surplus", "caloric deficit", "daily calories"]
+
+  - name: estimated_weekly_caloric_balance
+    type: custom
+    description: "Estimated weekly caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule"
+    expr: |
+      ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+      NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
+    synonyms: ["weekly caloric balance", "weekly caloric surplus", "weekly caloric deficit", "weekly calories"]
