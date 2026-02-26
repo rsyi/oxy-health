@@ -27,30 +27,10 @@ cubes:
       title: week
       description: Week start date (Monday) in YYYY-MM-DD format for aggregation
     - name: day_of_week
-      sql: EXTRACT(DAYOFWEEK FROM Date)
-      type: number
+      sql: DAYNAME(Date)
+      type: string
       title: day_of_week
-      description: Day of week (1=Monday, 7=Sunday)
-    - name: calories
-      sql: '"Calories (kcal)"'
-      type: number
-      title: calories
-      description: Total daily calories in kcal
-    - name: protein
-      sql: '"Protein (g)"'
-      type: number
-      title: protein
-      description: Daily protein intake in grams
-    - name: carbs
-      sql: '"Carbs (g)"'
-      type: number
-      title: carbs
-      description: Daily carbohydrate intake in grams
-    - name: fat
-      sql: '"Fat (g)"'
-      type: number
-      title: fat
-      description: Daily fat intake in grams
+      description: Day of week name
     - name: protein_ratio
       sql: ("Protein (g)" * 4.0) / "Calories (kcal)" * 100
       type: number
@@ -76,7 +56,7 @@ cubes:
       sql: '"Calories (kcal)"'
       type: avg
       title: avg_daily_calories
-      description: Average daily calorie intake
+      description: Average daily calorie intake in kcal
     - name: avg_daily_protein
       sql: '"Protein (g)"'
       type: avg

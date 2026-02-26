@@ -1,12 +1,12 @@
 name: four_by_four
-description: "Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity."
+description: "Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill and stairmaster sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity."
 datasource: motherduck
 table: exercise.four_by_four
 
 entities:
-  - name: vo2_session
+  - name: vo2_interval
     type: primary
-    description: "Individual VO2 max training session"
+    description: "Individual 4-minute interval effort within a 4x4 workout"
     key: session_id
 
   - name: training_day
@@ -42,6 +42,12 @@ dimensions:
     expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
     synonyms: ["week start", "week"]
 
+  - name: day_of_week
+    type: string
+    description: "Day of week name"
+    expr: "DAYNAME(Date)"
+    synonyms: ["weekday"]
+
   - name: treadmill_speed
     type: number
     description: "Treadmill speed in miles per hour"
@@ -54,11 +60,34 @@ dimensions:
     expr: "\"Treadmill Incline (%)\""
     synonyms: ["incline", "grade"]
 
+  - name: stairmaster_speed
+    type: number
+    description: "Stairmaster speed setting (for stairmaster sessions)"
+    expr: "\"Stairmaster Speed\""
+    synonyms: ["stair speed"]
+
+  - name: zone_4_reached
+    type: string
+    description: "Elapsed time when heart rate zone 4 was first reached"
+    expr: "CAST(\"Time Zone 4 Reached\" AS VARCHAR)"
+    synonyms: ["zone 4", "zone 4 time"]
+
   - name: zone_5_reached
     type: string
-    description: "Whether heart rate zone 5 was reached (VO2 max zone)"
+    description: "Elapsed time when heart rate zone 5 was first reached. 'never reached' if zone 5 was not hit"
     expr: "\"Time Zone 5 Reached\""
     synonyms: ["zone 5", "max zone reached"]
+
+  - name: workout_type
+    type: string
+    description: "Type of 4x4 workout based on equipment used"
+    expr: |
+      CASE
+        WHEN "Stairmaster Speed" IS NOT NULL THEN 'stairmaster'
+        ELSE 'treadmill'
+      END
+    samples: ["treadmill", "stairmaster"]
+    synonyms: ["equipment", "modality"]
 
   - name: total_time
     type: string
@@ -66,16 +95,22 @@ dimensions:
     expr: "\"Total Time\""
     synonyms: ["duration", "workout time"]
 
+  - name: max_heart_rate
+    type: number
+    description: "Maximum heart rate during interval"
+    expr: "\"Max Heart Rate\""
+    synonyms: ["max hr", "peak heart rate"]
+
   - name: notes
     type: string
     description: "Session notes and observations"
     expr: "Notes"
 
 measures:
-  - name: total_sessions
+  - name: total_intervals
     type: count
-    description: "Total number of VO2 max sessions"
-    synonyms: ["session count", "workout count"]
+    description: "Total number of 4-minute interval efforts"
+    synonyms: ["interval count", "effort count", "total_sessions"]
 
   - name: training_frequency
     type: count_distinct
@@ -85,7 +120,7 @@ measures:
 
   - name: avg_speed
     type: average
-    description: "Average treadmill speed across sessions"
+    description: "Average treadmill speed across intervals"
     expr: "\"Treadmill Speed (mph)\""
     synonyms: ["mean speed"]
 
@@ -110,14 +145,60 @@ measures:
     description: "Maximum treadmill incline achieved"
     expr: "\"Treadmill Incline (%)\""
 
+  - name: avg_max_heart_rate
+    type: average
+    description: "Average max heart rate across intervals"
+    expr: "\"Max Heart Rate\""
+    synonyms: ["mean max hr"]
+
+  - name: avg_stairmaster_speed
+    type: average
+    description: "Average stairmaster speed across stairmaster intervals"
+    expr: "\"Stairmaster Speed\""
+
   - name: zone_5_success_rate
     type: custom
-    description: "Percentage of sessions reaching zone 5"
-    expr: "COUNT(CASE WHEN \"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != '' THEN 1 END) * 100.0 / COUNT(*)"
+    description: "Percentage of intervals reaching zone 5 (excludes 'never reached')"
+    expr: "COUNT(CASE WHEN \"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != '' AND \"Time Zone 5 Reached\" != 'never reached' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0)"
     synonyms: ["zone 5 rate", "VO2 max achievement rate"]
 
-  - name: sessions_reaching_zone_5
+  - name: intervals_reaching_zone_5
     type: count
-    description: "Number of sessions that reached zone 5"
+    description: "Number of intervals that reached zone 5"
     filters:
-      - expr: "\"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != ''"
+      - expr: "\"Time Zone 5 Reached\" IS NOT NULL AND \"Time Zone 5 Reached\" != '' AND \"Time Zone 5 Reached\" != 'never reached'"
+
+  - name: total_time_in_zone_5_minutes
+    type: custom
+    description: "Total minutes spent in zone 5 across all intervals (Total Time - Time Zone 5 Reached, summed). Use with a time dimension (week, month) to see total zone 5 volume per period"
+    expr: |
+      SUM(
+        CASE
+          WHEN "Time Zone 5 Reached" IS NOT NULL
+            AND "Time Zone 5 Reached" != ''
+            AND "Time Zone 5 Reached" != 'never reached'
+          THEN EXTRACT(EPOCH FROM ("Total Time" - CAST("Time Zone 5 Reached" AS TIME))) / 60.0
+        END
+      )
+    synonyms: ["zone 5 time", "time in zone 5", "z5 time", "total zone 5"]
+
+  - name: total_time_in_zone_4_minutes
+    type: custom
+    description: "Total minutes spent in zone 4 across all intervals. For zone 5 intervals: Time Zone 5 Reached - Time Zone 4 Reached (estimated 1 min if Zone 4 Reached is null). For zone 4-only intervals: Total Time - Time Zone 4 Reached"
+    expr: |
+      SUM(
+        CASE
+          WHEN "Time Zone 5 Reached" IS NOT NULL
+            AND "Time Zone 5 Reached" != ''
+            AND "Time Zone 5 Reached" != 'never reached'
+          THEN
+            CASE
+              WHEN "Time Zone 4 Reached" IS NOT NULL
+              THEN EXTRACT(EPOCH FROM (CAST("Time Zone 5 Reached" AS TIME) - "Time Zone 4 Reached")) / 60.0
+              ELSE 1.0
+            END
+          WHEN "Time Zone 4 Reached" IS NOT NULL
+          THEN EXTRACT(EPOCH FROM ("Total Time" - "Time Zone 4 Reached")) / 60.0
+        END
+      )
+    synonyms: ["zone 4 time", "time in zone 4", "z4 time", "total zone 4"]

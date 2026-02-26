@@ -31,6 +31,11 @@ cubes:
       type: string
       title: week
       description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: day_of_week
+      sql: DAYNAME(date)
+      type: string
+      title: day_of_week
+      description: Day of week name
     - name: climb_name
       sql: climb_name
       type: string
@@ -45,7 +50,16 @@ cubes:
       sql: grade
       type: string
       title: grade
-      description: Climbing grade/difficulty
+      description: 'Climbing grade/difficulty (V-scale: vIntro, v0, v1, ...)'
+    - name: grade_number
+      sql: |
+        CASE
+          WHEN LOWER(grade) = 'vintro' THEN 0
+          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+        END
+      type: number
+      title: grade_number
+      description: Numeric grade for aggregation (vIntro=0, v0=1, v1=2, v2=3, ...)
     - name: color
       sql: color
       type: string
@@ -78,17 +92,17 @@ cubes:
       title: climbing_days
       description: Number of unique climbing days
     - name: avg_attempts
-      sql: attempts
+      sql: COALESCE(attempts, 1)
       type: avg
       title: avg_attempts
-      description: Average attempts per climb
+      description: Average attempts per climb (onsights/flashes count as 1)
     - name: avg_rating
       sql: rating
       type: avg
       title: avg_rating
       description: Average climb rating
     - name: total_attempts
-      sql: attempts
+      sql: COALESCE(attempts, 1)
       type: sum
       title: total_attempts
       description: Total attempts across all climbs
@@ -106,6 +120,28 @@ cubes:
       description: Number of onsight ascents
       filters:
       - sql: ascent_type = 'onsight'
+    - name: max_grade
+      sql: |
+        MAX(
+          CASE
+            WHEN LOWER(grade) = 'vintro' THEN 0
+            ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          END
+        )
+      type: number
+      title: max_grade
+      description: Hardest grade sent (numeric, vIntro=0, v0=1, v1=2, ...). Best metric for climbing progression
+    - name: avg_grade
+      sql: |
+        AVG(
+          CASE
+            WHEN LOWER(grade) = 'vintro' THEN 0
+            ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          END
+        )
+      type: number
+      title: avg_grade
+      description: Average grade sent (numeric, vIntro=0, v0=1, v1=2, ...). Tracks overall climbing difficulty
     - name: unique_grades
       sql: grade
       type: countDistinct

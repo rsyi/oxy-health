@@ -6,7 +6,6 @@ tasks:
       - strength_tracker.month
     measures:
       - strength_tracker.max_deadlift_1rm
-
   - name: bench_monthly_max
     type: semantic_query
     topic: strength
@@ -14,7 +13,6 @@ tasks:
       - strength_tracker.month
     measures:
       - strength_tracker.max_bench_1rm
-
   - name: squat_monthly_max
     type: semantic_query
     topic: strength
@@ -22,7 +20,6 @@ tasks:
       - strength_tracker.month
     measures:
       - strength_tracker.max_squat_1rm
-
   - name: overhead_press_monthly_max
     type: semantic_query
     topic: strength
@@ -30,7 +27,6 @@ tasks:
       - strength_tracker.month
     measures:
       - strength_tracker.max_overhead_press_1rm
-
 display:
   - type: markdown
     content: |
@@ -40,7 +36,6 @@ display:
       **1RM = Weight × (Reps^0.1)**
 
       This dashboard shows your strength progression across major compound lifts using the semantic layer.
-
   - type: line_chart
     title: Deadlift - 1RM Progression
     data: deadlift_monthly_max
@@ -48,7 +43,6 @@ display:
     y: strength_tracker__max_deadlift_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
-
   - type: line_chart
     title: Bench Press - 1RM Progression
     data: bench_monthly_max
@@ -56,7 +50,6 @@ display:
     y: strength_tracker__max_bench_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
-
   - type: line_chart
     title: Squat - 1RM Progression
     data: squat_monthly_max
@@ -64,7 +57,6 @@ display:
     y: strength_tracker__max_squat_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
-
   - type: line_chart
     title: Overhead Press - 1RM Progression
     data: overhead_press_monthly_max
@@ -72,19 +64,15 @@ display:
     y: strength_tracker__max_overhead_press_1rm
     x_axis_label: Month
     y_axis_label: Estimated 1RM (lbs)
-
   - type: table
     title: Deadlift - Progression Data
     data: deadlift_monthly_max
-
   - type: table
     title: Bench Press - Progression Data
     data: bench_monthly_max
-
   - type: table
     title: Squat - Progression Data
     data: squat_monthly_max
-
   - type: table
     title: Overhead Press - Progression Data
     data: overhead_press_monthly_max

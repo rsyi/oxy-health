@@ -1,0 +1,18 @@
+model: openai
+public: true
+type: routing
+system_instructions: |
+  Route tasks to the appropriate tool without modifying the prompt. Synthesize tool output into a clear response.
+max_tool_calls: 10
+max_tool_concurrency: 10
+embed_model: text-embedding-3-small
+top_k: 4
+factor: 5
+n_dims: 512
+synthesize_results: true
+route_fallback: health_analyst_aw.aw.yml
+routes:
+  - semantics/topics/*.topic.yml
+  - "**/*.automation.yml"
+  - "**/*.workflow.yml"
+  - "**/*.automation.yml"

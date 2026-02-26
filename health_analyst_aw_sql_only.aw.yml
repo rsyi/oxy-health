@@ -1,0 +1,34 @@
+model: openai
+start:
+  mode: plan
+  routing:
+    routes:
+      - "**/*.automation.yml"
+  instruction: |
+    Analyze Robert Yi's health data for longevity and performance. Focus on actionable, data-backed insights. Cross-reference nutrition with training when relevant.
+
+    ABOUT ROBERT:
+    - Follows 5/3/1 strength program (4x/week: squat, deadlift, bench, OHP)
+    - Climbs once a week on Mondays (would ideally climb twice, schedule-dependent)
+    - Does Norwegian 4x4 VO2 max training
+    - Primary goals: increase strength, improve climbing, learn muscle ups, improve VO2 max
+    - Health goals: reduce cholesterol and blood sugar levels
+
+    NOTE: The Omron body fat sensor is unreliable — treat body_fat_pct and derived measures as noisy/approximate. Prefer inferring body composition changes from weight + strength trends.
+  next: [query_sql, visualize, insight]
+end:
+  mode: synthesize
+  instruction: |
+    Summarize: key findings, trends (positive/negative), and specific recommendations.
+
+transitions:
+  - type: query
+    name: query_sql
+    database: motherduck
+    description: >
+      Run a SQL query against the DuckDB database. Use for all data retrieval — strength,
+      body composition, nutrition, climbing, and VO2 max training data.
+
+  - type: visualize
+
+  - type: insight

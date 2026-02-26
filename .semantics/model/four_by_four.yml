@@ -3,7 +3,7 @@ cubes:
     sql_table: exercise.four_by_four
     data_source: motherduck
     title: four_by_four
-    description: Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity.
+    description: Norwegian 4x4 protocol tracking for VO2 max training. Monitors treadmill and stairmaster sessions with intervals designed to improve cardiovascular capacity and aerobic fitness for longevity.
     dimensions:
     - name: session_id
       sql: CAST(Date AS VARCHAR)
@@ -31,6 +31,11 @@ cubes:
       type: string
       title: week
       description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+    - name: day_of_week
+      sql: DAYNAME(Date)
+      type: string
+      title: day_of_week
+      description: Day of week name
     - name: treadmill_speed
       sql: '"Treadmill Speed (mph)"'
       type: number
@@ -41,27 +46,51 @@ cubes:
       type: number
       title: treadmill_incline
       description: Treadmill incline percentage
+    - name: stairmaster_speed
+      sql: '"Stairmaster Speed"'
+      type: number
+      title: stairmaster_speed
+      description: Stairmaster speed setting (for stairmaster sessions)
+    - name: zone_4_reached
+      sql: CAST("Time Zone 4 Reached" AS VARCHAR)
+      type: string
+      title: zone_4_reached
+      description: Elapsed time when heart rate zone 4 was first reached
     - name: zone_5_reached
       sql: '"Time Zone 5 Reached"'
       type: string
       title: zone_5_reached
-      description: Whether heart rate zone 5 was reached (VO2 max zone)
+      description: Elapsed time when heart rate zone 5 was first reached. 'never reached' if zone 5 was not hit
+    - name: workout_type
+      sql: |
+        CASE
+          WHEN "Stairmaster Speed" IS NOT NULL THEN 'stairmaster'
+          ELSE 'treadmill'
+        END
+      type: string
+      title: workout_type
+      description: Type of 4x4 workout based on equipment used
     - name: total_time
       sql: '"Total Time"'
       type: string
       title: total_time
       description: Total workout time
+    - name: max_heart_rate
+      sql: '"Max Heart Rate"'
+      type: number
+      title: max_heart_rate
+      description: Maximum heart rate during interval
     - name: notes
       sql: Notes
       type: string
       title: notes
       description: Session notes and observations
     measures:
-    - name: total_sessions
+    - name: total_intervals
       sql: '1'
       type: count
-      title: total_sessions
-      description: Total number of VO2 max sessions
+      title: total_intervals
+      description: Total number of 4-minute interval efforts
     - name: training_frequency
       sql: Date
       type: countDistinct
@@ -71,7 +100,7 @@ cubes:
       sql: '"Treadmill Speed (mph)"'
       type: avg
       title: avg_speed
-      description: Average treadmill speed across sessions
+      description: Average treadmill speed across intervals
     - name: max_speed
       sql: '"Treadmill Speed (mph)"'
       type: max
@@ -92,15 +121,58 @@ cubes:
       type: max
       title: max_incline
       description: Maximum treadmill incline achieved
+    - name: avg_max_heart_rate
+      sql: '"Max Heart Rate"'
+      type: avg
+      title: avg_max_heart_rate
+      description: Average max heart rate across intervals
+    - name: avg_stairmaster_speed
+      sql: '"Stairmaster Speed"'
+      type: avg
+      title: avg_stairmaster_speed
+      description: Average stairmaster speed across stairmaster intervals
     - name: zone_5_success_rate
-      sql: COUNT(CASE WHEN "Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '' THEN 1 END) * 100.0 / COUNT(*)
+      sql: COUNT(CASE WHEN "Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '' AND "Time Zone 5 Reached" != 'never reached' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0)
       type: number
       title: zone_5_success_rate
-      description: Percentage of sessions reaching zone 5
-    - name: sessions_reaching_zone_5
+      description: Percentage of intervals reaching zone 5 (excludes 'never reached')
+    - name: intervals_reaching_zone_5
       sql: '1'
       type: count
-      title: sessions_reaching_zone_5
-      description: Number of sessions that reached zone 5
+      title: intervals_reaching_zone_5
+      description: Number of intervals that reached zone 5
       filters:
-      - sql: '"Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '''''
+      - sql: '"Time Zone 5 Reached" IS NOT NULL AND "Time Zone 5 Reached" != '''' AND "Time Zone 5 Reached" != ''never reached'''
+    - name: total_time_in_zone_5_minutes
+      sql: |
+        SUM(
+          CASE
+            WHEN "Time Zone 5 Reached" IS NOT NULL
+              AND "Time Zone 5 Reached" != ''
+              AND "Time Zone 5 Reached" != 'never reached'
+            THEN EXTRACT(EPOCH FROM ("Total Time" - CAST("Time Zone 5 Reached" AS TIME))) / 60.0
+          END
+        )
+      type: number
+      title: total_time_in_zone_5_minutes
+      description: Total minutes spent in zone 5 across all intervals (Total Time - Time Zone 5 Reached, summed). Use with a time dimension (week, month) to see total zone 5 volume per period
+    - name: total_time_in_zone_4_minutes
+      sql: |
+        SUM(
+          CASE
+            WHEN "Time Zone 5 Reached" IS NOT NULL
+              AND "Time Zone 5 Reached" != ''
+              AND "Time Zone 5 Reached" != 'never reached'
+            THEN
+              CASE
+                WHEN "Time Zone 4 Reached" IS NOT NULL
+                THEN EXTRACT(EPOCH FROM (CAST("Time Zone 5 Reached" AS TIME) - "Time Zone 4 Reached")) / 60.0
+                ELSE 1.0
+              END
+            WHEN "Time Zone 4 Reached" IS NOT NULL
+            THEN EXTRACT(EPOCH FROM ("Total Time" - "Time Zone 4 Reached")) / 60.0
+          END
+        )
+      type: number
+      title: total_time_in_zone_4_minutes
+      description: 'Total minutes spent in zone 4 across all intervals. For zone 5 intervals: Time Zone 5 Reached - Time Zone 4 Reached (estimated 1 min if Zone 4 Reached is null). For zone 4-only intervals: Total Time - Time Zone 4 Reached'

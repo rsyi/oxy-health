@@ -1,11 +1,15 @@
 name: climbing
-description: "Rock climbing tracking for mobility, movement quality, and body awareness - essential for maintaining functional movement patterns and joint health as part of longevity training"
+description: |
+  Rock climbing tracking for mobility, movement quality, and body awareness - essential for maintaining functional movement patterns and joint health as part of longevity training.
+
+  To determine which days climbing happens, group climbing_days by the day_of_week dimension.
 base_view: kaya
 views:
   - kaya
 
 # Questions this topic can answer:
 # - How often am I climbing?
+# - Which days of the week do I climb?
 # - What grades am I climbing consistently?
 # - How many flashes vs projects am I working on?
 # - What's my average attempts per climb?

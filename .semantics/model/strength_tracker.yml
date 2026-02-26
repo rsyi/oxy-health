@@ -86,12 +86,12 @@ cubes:
       sql: '1'
       type: count
       title: total_sets
-      description: Total number of sets performed
+      description: Total number of sets performed. Includes warmup sets — do not use raw set counts to judge training volume or overtraining. Use total_volume or max_estimated_1rm instead
     - name: main_lift_sets
       sql: '1'
       type: count
       title: main_lift_sets
-      description: Total sets of main compound lifts only
+      description: Total sets of main compound lifts only. Includes warmup sets — a typical session may have 5-6 warmup sets before 3-5 working sets. Do not interpret high set counts as overtraining
       filters:
       - sql: Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')
     - name: total_volume
@@ -111,6 +111,34 @@ cubes:
       type: countDistinct
       title: training_frequency
       description: Number of unique training days
+    - name: squat_days
+      sql: Date
+      type: countDistinct
+      title: squat_days
+      description: Number of days with barbell squat. Group by day_of_week to see which days squats are typically done
+      filters:
+      - sql: Exercise = 'Barbell Squat'
+    - name: deadlift_days
+      sql: Date
+      type: countDistinct
+      title: deadlift_days
+      description: Number of days with barbell deadlift. Group by day_of_week to see which days deadlifts are typically done
+      filters:
+      - sql: Exercise = 'Barbell Deadlift'
+    - name: bench_days
+      sql: Date
+      type: countDistinct
+      title: bench_days
+      description: Number of days with bench press. Group by day_of_week to see which days bench is typically done
+      filters:
+      - sql: Exercise = 'Flat Barbell Bench Press'
+    - name: ohp_days
+      sql: Date
+      type: countDistinct
+      title: ohp_days
+      description: Number of days with overhead press. Group by day_of_week to see which days OHP is typically done
+      filters:
+      - sql: Exercise = 'Overhead Press'
     - name: max_squat_1rm
       sql: Weight * POWER(Reps, 0.1)
       type: max
@@ -195,6 +223,11 @@ cubes:
       description: Number of overhead press sets
       filters:
       - sql: Exercise = 'Overhead Press'
+    - name: max_estimated_1rm
+      sql: Weight * POWER(Reps, 0.1)
+      type: max
+      title: max_estimated_1rm
+      description: Maximum estimated 1RM across all exercises using Lombardi formula
     - name: avg_rpe
       sql: RPE
       type: avg

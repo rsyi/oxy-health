@@ -1,0 +1,127 @@
+name: weekly_workout_plan
+description: Plan next week's workouts based on recent strength, body composition, nutrition, VO2 max, and climbing data
+tasks:
+  - name: recent_strength_by_lift
+    type: semantic_query
+    topic: strength
+    measures:
+      - strength_tracker.max_squat_1rm
+      - strength_tracker.max_deadlift_1rm
+      - strength_tracker.max_bench_1rm
+      - strength_tracker.max_overhead_press_1rm
+      - strength_tracker.total_volume
+      - strength_tracker.main_lift_volume
+      - strength_tracker.avg_rpe
+      - strength_tracker.high_intensity_sets
+    time_dimensions:
+      - dimension: strength_tracker.date
+        granularity: week
+    orders:
+      - field: strength_tracker.date
+        direction: desc
+    limit: 4
+
+  - name: recent_weight_trend
+    type: semantic_query
+    topic: body_composition
+    measures:
+      - body_composition.avg_weight
+      - body_composition.weight_change
+      - body_composition.avg_weekly_weight_change
+    time_dimensions:
+      - dimension: body_composition.date
+        granularity: week
+    orders:
+      - field: body_composition.date
+        direction: desc
+    limit: 4
+
+  - name: recent_nutrition
+    type: semantic_query
+    topic: nutrition
+    measures:
+      - macro_tracker.avg_daily_calories
+      - macro_tracker.avg_daily_protein
+      - macro_tracker.avg_daily_carbs
+      - macro_tracker.avg_daily_fat
+    dimensions:
+      - macro_tracker.week
+    orders:
+      - field: macro_tracker.week
+        direction: desc
+    limit: 4
+
+  - name: recent_vo2_max
+    type: semantic_query
+    topic: vo2_max
+    measures:
+      - four_by_four.total_intervals
+      - four_by_four.training_frequency
+      - four_by_four.total_time_in_zone_5_minutes
+      - four_by_four.total_time_in_zone_4_minutes
+      - four_by_four.intervals_reaching_zone_5
+      - four_by_four.avg_max_heart_rate
+    time_dimensions:
+      - dimension: four_by_four.date
+        granularity: week
+    orders:
+      - field: four_by_four.date
+        direction: desc
+    limit: 4
+
+  - name: recent_climbing
+    type: semantic_query
+    topic: climbing
+    measures:
+      - kaya.total_climbs
+      - kaya.climbing_days
+      - kaya.max_grade
+      - kaya.avg_grade
+      - kaya.avg_attempts
+      - kaya.flash_count
+    time_dimensions:
+      - dimension: kaya.date
+        granularity: week
+    orders:
+      - field: kaya.date
+        direction: desc
+    limit: 4
+
+  - name: plan_next_week
+    type: formatter
+    template: |-
+      You are planning Robert's workout week. He follows 5/3/1 (4 days: squat, deadlift, bench, OHP), does Norwegian 4x4 VO2 max training, and climbs.
+
+      CONTEXT:
+      - The Omron body fat sensor is unreliable. Infer body composition from weight trend + strength trends.
+      - Set counts include warmups (typically 5-6 warmup sets before 3-5 working sets). Use volume and 1RM for judging training load, not set counts.
+      - Key VO2 max metrics are total time in zone 5, total time in zone 4, and intervals reaching zone 5.
+      - Climbing progression is best tracked by max_grade and avg_grade.
+
+      LAST 4 WEEKS STRENGTH (weekly 1RMs, volume, RPE):
+      {{ recent_strength_by_lift }}
+
+      LAST 4 WEEKS WEIGHT TREND:
+      {{ recent_weight_trend }}
+
+      LAST 4 WEEKS NUTRITION (weekly avg daily macros):
+      {{ recent_nutrition }}
+
+      LAST 4 WEEKS VO2 MAX TRAINING:
+      {{ recent_vo2_max }}
+
+      LAST 4 WEEKS CLIMBING:
+      {{ recent_climbing }}
+
+      Based on all the above, provide a concrete plan for next week:
+      1. 5/3/1 lift schedule with target working weights based on recent 1RM trends
+      2. VO2 max session plan (equipment, speed/incline targets based on recent progression)
+      3. Climbing session plan (target grades based on recent progression)
+      4. Nutrition recommendations (adjust calories/protein if weight trend doesn't align with goals)
+      5. Any recovery or deload recommendations if RPE or volume trends suggest fatigue
+retrieval:
+  include:
+    - plan my workout week
+    - what should I do next week
+    - weekly workout plan
+    - plan my training

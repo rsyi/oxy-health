@@ -1,0 +1,73 @@
+name: build_me_a_workout_plan
+description: builds a workout plan for the user
+tasks:
+  - name: get_weekly_trend_data_for_max_squat_deadlift_bench_overhead_
+    type: semantic_query
+    topic: strength
+    measures:
+      - strength_tracker.max_squat_1rm
+      - strength_tracker.max_deadlift_1rm
+      - strength_tracker.max_bench_1rm
+      - strength_tracker.max_overhead_press_1rm
+      - strength_tracker.max_estimated_1rm
+      - strength_tracker.total_volume
+      - strength_tracker.main_lift_volume
+      - strength_tracker.avg_rpe
+      - strength_tracker.training_frequency
+      - strength_tracker.total_sets
+    orders:
+      - field: strength_tracker.date
+        direction: asc
+  - name: get_monthly_averages_for_avg_weight_avg_body_fat_avg_lean_ma
+    type: semantic_query
+    topic: body_composition
+    measures:
+      - body_composition.avg_weight
+      - body_composition.avg_body_fat
+      - body_composition.avg_lean_mass
+      - body_composition.avg_fat_mass
+      - body_composition.avg_weekly_weight_change
+      - body_composition.estimated_daily_caloric_balance
+    dimensions:
+      - body_composition.month
+    orders:
+      - field: body_composition.month
+        direction: asc
+  - name: get_weekly_averages_for_avg_daily_calories_avg_daily_protein
+    type: semantic_query
+    topic: nutrition
+    measures:
+      - macro_tracker.avg_daily_calories
+      - macro_tracker.avg_daily_protein
+      - macro_tracker.avg_daily_carbs
+      - macro_tracker.avg_daily_fat
+    dimensions:
+      - macro_tracker.week
+    orders:
+      - field: macro_tracker.week
+        direction: asc
+  - name: get_weekly_norwegian_4x4_vo2_max_conditioning_session_data_f
+    type: semantic_query
+    topic: vo2_max
+    measures:
+      - four_by_four.training_frequency
+      - four_by_four.avg_speed
+      - four_by_four.max_speed
+      - four_by_four.avg_incline
+      - four_by_four.zone_5_success_rate
+    dimensions:
+      - four_by_four.week
+    orders:
+      - field: four_by_four.week
+        direction: asc
+  - name: deliver_a_concrete_individualized_data_driven_weekly_workout
+    type: formatter
+    template: |-
+      1RM trend
+      {{ get_weekly_trend_data_for_max_squat_deadlift_bench_overhead_ }}
+
+      Body fat trend
+      {{ get_monthly_averages_for_avg_weight_avg_body_fat_avg_lean_ma }}
+retrieval:
+  include:
+    - build me a workout plan

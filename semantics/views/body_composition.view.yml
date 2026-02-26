@@ -42,29 +42,33 @@ dimensions:
     expr: "STRFTIME(DATE_TRUNC('week', CAST(\"Datetime (Local)\" AS DATE)), '%Y-%m-%d')"
     synonyms: ["week start", "week"]
 
-  - name: weight
-    type: number
-    description: "Body weight in pounds"
-    expr: "\"Weight (lbs)\""
-    synonyms: ["bodyweight", "weight in lbs"]
+  - name: day_of_week
+    type: string
+    description: "Day of week name"
+    expr: "DAYNAME(CAST(\"Datetime (Local)\" AS DATE))"
+    synonyms: ["weekday"]
 
-  - name: body_fat
-    type: number
-    description: "Body fat percentage measured via Omron scale"
-    expr: "\"Body Fat % (Omron)\""
-    synonyms: ["body fat percentage", "bf%", "body fat"]
-
-  - name: lean_mass
-    type: number
-    description: "Estimated lean body mass (weight × (1 - body_fat%))"
-    expr: "\"Weight (lbs)\" * (1 - \"Body Fat % (Omron)\" / 100.0)"
-    synonyms: ["lean body mass", "lbm", "muscle mass"]
-
-  - name: fat_mass
-    type: number
-    description: "Estimated fat mass (weight × body_fat%)"
-    expr: "\"Weight (lbs)\" * (\"Body Fat % (Omron)\" / 100.0)"
-    synonyms: ["body fat mass"]
+  - name: training_phase
+    type: string
+    description: "Current training phase based on weight trend vs previous 7-day average. Bulk = gaining >0.25 lbs/week, Cut = losing >0.25 lbs/week, Maintenance = stable"
+    expr: |
+      CASE
+        WHEN (
+          (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
+            ORDER BY \"Datetime (Local)\"
+            RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+          )) / 7 * 7
+        ) > 0.25 THEN 'Bulk'
+        WHEN (
+          (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
+            ORDER BY \"Datetime (Local)\"
+            RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+          )) / 7 * 7
+        ) < -0.25 THEN 'Cut'
+        ELSE 'Maintenance'
+      END
+    samples: ["Bulk", "Cut", "Maintenance"]
+    synonyms: ["phase", "bulk or cut", "training cycle", "diet phase", "cutting", "bulking", "maintaining"]
 
 measures:
   - name: total_measurements
@@ -73,15 +77,15 @@ measures:
 
   - name: avg_weight
     type: average
-    description: "Average body weight"
+    description: "Average body weight in pounds"
     expr: "\"Weight (lbs)\""
-    synonyms: ["mean weight"]
+    synonyms: ["mean weight", "weight", "bodyweight", "body weight"]
 
   - name: avg_body_fat
     type: average
     description: "Average body fat percentage (only non-null measurements)"
     expr: "\"Body Fat % (Omron)\""
-    synonyms: ["mean body fat"]
+    synonyms: ["mean body fat", "body_fat", "body fat", "bf%", "body fat percentage"]
 
   - name: avg_lean_mass
     type: average
@@ -89,7 +93,7 @@ measures:
     expr: "\"Weight (lbs)\" * (1 - \"Body Fat % (Omron)\" / 100.0)"
     filters:
       - expr: "\"Body Fat % (Omron)\" IS NOT NULL"
-    synonyms: ["mean lean mass", "average muscle mass"]
+    synonyms: ["mean lean mass", "average muscle mass", "lean_mass", "lean mass", "lbm"]
 
   - name: avg_fat_mass
     type: average
@@ -97,6 +101,7 @@ measures:
     expr: "\"Weight (lbs)\" * (\"Body Fat % (Omron)\" / 100.0)"
     filters:
       - expr: "\"Body Fat % (Omron)\" IS NOT NULL"
+    synonyms: ["fat_mass", "fat mass"]
 
   - name: min_weight
     type: min
@@ -130,36 +135,36 @@ measures:
 
   - name: weight_change
     type: custom
-    description: "Weight change in period (max weight - min weight). Positive = bulking, negative = cutting"
-    expr: "MAX(\"Weight (lbs)\") - MIN(\"Weight (lbs)\")"
+    description: "Directional weight change (last minus first). Positive = gaining, negative = losing. Requires an aggregated time dimension (week, month, etc.) to be meaningful"
+    expr: "LAST(\"Weight (lbs)\" ORDER BY \"Datetime (Local)\") - FIRST(\"Weight (lbs)\" ORDER BY \"Datetime (Local)\")"
     synonyms: ["weight difference", "total weight change", "weight delta"]
 
   - name: weight_trend_slope
     type: custom
-    description: "Daily rate of weight change (lbs per day). Positive = bulking, negative = cutting, near zero = maintaining"
+    description: "Daily rate of weight change (lbs/day). Positive = gaining, negative = losing, near zero = maintaining. Requires an aggregated time dimension (week, month, etc.) to be meaningful"
     expr: "REGR_SLOPE(\"Weight (lbs)\", EXTRACT(EPOCH FROM \"Datetime (Local)\") / 86400)"
     synonyms: ["weight trend", "weight trajectory", "daily weight change rate"]
 
   - name: avg_weekly_weight_change
     type: custom
-    description: "Average weekly weight change rate. Positive = bulking, negative = cutting"
+    description: "Average weekly weight change rate. Positive = gaining, negative = losing. Requires an aggregated time dimension (week, month, etc.) to be meaningful"
     expr: |
-      (MAX("Weight (lbs)") - MIN("Weight (lbs)")) /
+      (LAST("Weight (lbs)" ORDER BY "Datetime (Local)") - FIRST("Weight (lbs)" ORDER BY "Datetime (Local)")) /
       NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
     synonyms: ["weekly weight change", "weight change per week", "weekly weight rate"]
 
   - name: estimated_daily_caloric_balance
     type: custom
-    description: "Estimated daily caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule"
+    description: "Estimated daily caloric surplus/deficit based on weight change (3500 cal = 1 lb). Requires an aggregated time dimension (week, month, etc.) to be meaningful"
     expr: |
-      ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+      ((LAST("Weight (lbs)" ORDER BY "Datetime (Local)") - FIRST("Weight (lbs)" ORDER BY "Datetime (Local)")) * 3500) /
       NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0)
     synonyms: ["daily caloric balance", "caloric surplus", "caloric deficit", "daily calories"]
 
   - name: estimated_weekly_caloric_balance
     type: custom
-    description: "Estimated weekly caloric surplus (positive) or deficit (negative) based on weight change. Uses 3500 cal = 1 lb rule"
+    description: "Estimated weekly caloric surplus/deficit based on weight change (3500 cal = 1 lb). Requires an aggregated time dimension (week, month, etc.) to be meaningful"
     expr: |
-      ((MAX("Weight (lbs)") - MIN("Weight (lbs)")) * 3500) /
+      ((LAST("Weight (lbs)" ORDER BY "Datetime (Local)") - FIRST("Weight (lbs)" ORDER BY "Datetime (Local)")) * 3500) /
       NULLIF(EXTRACT(DAY FROM (MAX("Datetime (Local)") - MIN("Datetime (Local)"))), 0) * 7
     synonyms: ["weekly caloric balance", "weekly caloric surplus", "weekly caloric deficit", "weekly calories"]

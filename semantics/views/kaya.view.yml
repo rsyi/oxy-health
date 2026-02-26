@@ -42,6 +42,12 @@ dimensions:
     expr: "STRFTIME(DATE_TRUNC('week', date), '%Y-%m-%d')"
     synonyms: ["week start", "week"]
 
+  - name: day_of_week
+    type: string
+    description: "Day of week name"
+    expr: "DAYNAME(date)"
+    synonyms: ["weekday"]
+
   - name: climb_name
     type: string
     description: "Name or identifier of the climb"
@@ -56,9 +62,19 @@ dimensions:
 
   - name: grade
     type: string
-    description: "Climbing grade/difficulty"
+    description: "Climbing grade/difficulty (V-scale: vIntro, v0, v1, ...)"
     expr: "grade"
     synonyms: ["difficulty", "route grade"]
+
+  - name: grade_number
+    type: number
+    description: "Numeric grade for aggregation (vIntro=0, v0=1, v1=2, v2=3, ...)"
+    expr: |
+      CASE
+        WHEN LOWER(grade) = 'vintro' THEN 0
+        ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+      END
+    synonyms: ["numeric grade", "grade value"]
 
   - name: color
     type: string
@@ -98,8 +114,8 @@ measures:
 
   - name: avg_attempts
     type: average
-    description: "Average attempts per climb"
-    expr: "attempts"
+    description: "Average attempts per climb (onsights/flashes count as 1)"
+    expr: "COALESCE(attempts, 1)"
     synonyms: ["mean attempts"]
 
   - name: avg_rating
@@ -110,7 +126,7 @@ measures:
   - name: total_attempts
     type: sum
     description: "Total attempts across all climbs"
-    expr: "attempts"
+    expr: "COALESCE(attempts, 1)"
 
   - name: flash_count
     type: count
@@ -123,6 +139,30 @@ measures:
     description: "Number of onsight ascents"
     filters:
       - expr: "ascent_type = 'onsight'"
+
+  - name: max_grade
+    type: custom
+    description: "Hardest grade sent (numeric, vIntro=0, v0=1, v1=2, ...). Best metric for climbing progression"
+    expr: |
+      MAX(
+        CASE
+          WHEN LOWER(grade) = 'vintro' THEN 0
+          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+        END
+      )
+    synonyms: ["hardest grade", "highest grade", "peak grade"]
+
+  - name: avg_grade
+    type: custom
+    description: "Average grade sent (numeric, vIntro=0, v0=1, v1=2, ...). Tracks overall climbing difficulty"
+    expr: |
+      AVG(
+        CASE
+          WHEN LOWER(grade) = 'vintro' THEN 0
+          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+        END
+      )
+    synonyms: ["mean grade", "average difficulty"]
 
   - name: unique_grades
     type: count_distinct

@@ -4,6 +4,7 @@ defaults:
 models:
   - vendor: openai
     name: openai
+#    model_ref: gpt-5.2
     model_ref: gpt-4.1
     key_var: OPENAI_API_KEY
     api_url: https://api.openai.com/v1
@@ -19,3 +20,6 @@ databases:
       - "*"
       nutrition:
       - "*"
+mcp:
+  tools:
+    - semantics/topics/*.topic.yml

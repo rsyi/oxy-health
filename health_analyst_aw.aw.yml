@@ -1,0 +1,81 @@
+model: openai
+start:
+  mode: plan
+  routing:
+    routes:
+      - "**/*.automation.yml"
+  instruction: |
+    Analyze Robert Yi's health data for longevity and performance. Focus on actionable, data-backed insights. Cross-reference nutrition with training when relevant.
+
+    ABOUT ROBERT:
+    - Follows 5/3/1 strength program (4x/week: squat, deadlift, bench, OHP)
+    - Climbs once a week on Mondays (would ideally climb twice, schedule-dependent)
+    - Does Norwegian 4x4 VO2 max training
+    - Primary goals: increase strength, improve climbing, learn muscle ups, improve VO2 max
+    - Health goals: reduce cholesterol and blood sugar levels
+    - Use weight_change and avg_weekly_weight_change to determine if he's currently on a cut or bulk — this context is important for interpreting all other metrics and making recommendations
+
+    NOTE: The Omron body fat sensor is unreliable — treat avg_body_fat and all derived measures (avg_lean_mass, avg_fat_mass, min_body_fat, max_body_fat, body_fat_variance) as noisy/approximate. If weight is dropping and strength is maintained, body fat is almost certainly decreasing even if these metrics appear flat. Prefer inferring body composition changes from avg_weight + strength trends rather than trusting body fat-derived measures directly.
+
+    SEMANTIC QUERY RULES:
+    - Dimensions (use in "dimensions" for grouping — strings/numbers only): exercise, day_of_week, is_main_lift, workout_type, gym, grade, ascent_type
+    - day_of_week is a STRING dimension, NOT a date — put it in "dimensions", not "time_dimensions"
+    - Use dimensions to detect workout patterns, e.g. group squat_days by day_of_week to find which days squats typically happen
+    - Date fields (date) MUST go in "time_dimensions" with a granularity (day, week, month, year), never in "dimensions"
+    - Lift-specific measures exist: squat_days, deadlift_days, bench_days, ohp_days — group these by day_of_week to identify the weekly schedule
+    - DEFAULT DATE RANGE: When no date range is specified, filter to the last 8 weeks so results reflect recent patterns. Only use a wider range if explicitly requested.
+  next: [query_strength, query_body_composition, query_nutrition, query_vo2_max, query_climbing, query_sql, visualize, insight]
+end:
+  mode: synthesize
+  instruction: |
+    Summarize: key findings, trends (positive/negative), and specific recommendations.
+
+transitions:
+  - type: semantic_query
+    name: query_strength
+    description: Query strength data (lifts, volume, 1RM, RPE)
+    topic: strength
+
+  - type: semantic_query
+    name: query_body_composition
+    description: Query body composition (weight, body fat %, lean mass)
+    topic: body_composition
+
+  - type: semantic_query
+    name: query_nutrition
+    description: Query nutrition (calories, protein, carbs, fats)
+    topic: nutrition
+
+  - type: semantic_query
+    name: query_vo2_max
+    description: Query VO2 max sessions (Norwegian 4x4)
+    topic: vo2_max
+
+  - type: semantic_query
+    name: query_climbing
+    description: Query climbing sessions and progression
+    topic: climbing
+
+  - type: query
+    name: query_sql
+    database: motherduck
+    description: >
+      Run a custom SQL query directly against the database. Use this when the question requires
+      data not well-served by the semantic layer — e.g. listing specific exercises, ad-hoc groupings,
+      or cross-table joins the predefined measures don't cover. Tables:
+      exercise.strength_tracker (date, exercise, weight, reps, rpe, start_time),
+      exercise.four_by_four (Date, "Treadmill Speed (mph)", "Treadmill Incline (%)", "Stairmaster Speed", "Time Zone 4 Reached", "Time Zone 5 Reached", "Total Time", "Max Heart Rate", Notes),
+      exercise.kaya (date, climb_name, gym, grade, color, ascent_type, attempts, rating),
+      body.body_composition_tracker (date, weight_lbs, body_fat_pct),
+      nutrition.macro_tracker (date, calories, protein_g, carbs_g, fat_g).
+      Use DuckDB SQL dialect.
+
+  - type: visualize
+
+  - type: insight
+
+tests:
+  - type: consistency
+    concurrency: 10
+    n: 10
+    task_description: based on my last 8 weeks of squatting, what should my routine be for squatting today? (it's monday)

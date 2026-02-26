@@ -1,1 +1,28 @@
-dimensions: []
+dimensions:
+- name: Notes
+  targets:
+  - motherduck.exercise.four_by_four.Notes
+- name: Stairmaster Speed
+  targets:
+  - motherduck.exercise.four_by_four.Stairmaster Speed
+- name: Treadmill Incline (%)
+  targets:
+  - motherduck.exercise.four_by_four.Treadmill Incline (%)
+- name: Date
+  targets:
+  - motherduck.exercise.four_by_four.Date
+- name: Time Zone 5 Reached
+  targets:
+  - motherduck.exercise.four_by_four.Time Zone 5 Reached
+- name: Treadmill Speed (mph)
+  targets:
+  - motherduck.exercise.four_by_four.Treadmill Speed (mph)
+- name: Total Time
+  targets:
+  - motherduck.exercise.four_by_four.Total Time
+- name: Max Heart Rate
+  targets:
+  - motherduck.exercise.four_by_four.Max Heart Rate
+- name: Time Zone 4 Reached
+  targets:
+  - motherduck.exercise.four_by_four.Time Zone 4 Reached

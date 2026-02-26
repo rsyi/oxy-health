@@ -1,17 +1,10 @@
 /*
- * oxy:
- *   database: motherduck
- *   description: Calculates peak Lombardi 1RM for each month. Use this as a means of tracking progress over time for a given exercise.
- *   variables:
- *     exercise_name:
- *       enum:
- *         - "Barbell Deadlift"
- *         - "Barbell Row"
- *         - "Overhead Press"
- *         - "Barbell Squat"
- *         - "Flat Barbell Bench Press"
- *         - "Pull Up"
- */
+oxy:
+  retrieval:
+    include: 
+      - "What's my one-rep max for bench press?"
+      - "what's my 1RM"
+*/
 
 WITH per_month AS (
     SELECT 
@@ -20,7 +13,7 @@ WITH per_month AS (
         reps,
         weight * (POWER(reps, 0.1)) AS est_1RM
     FROM personal_data.exercise.strength_tracker
-    WHERE Exercise = '{{ exercise_name }}'
+    WHERE Exercise = 'Flat Barbell Bench Press'
 ),
 max_per_month AS (
     SELECT 

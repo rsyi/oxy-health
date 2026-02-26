@@ -1,0 +1,10 @@
+tasks:
+  - name: task_1
+    type: execute_sql
+    database: motherduck
+    sql_query: select 1
+display:
+  - type: table
+    data: task_1
+  - type: markdown
+    content: "{{ task_1 }}"

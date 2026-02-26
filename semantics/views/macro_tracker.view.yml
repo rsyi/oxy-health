@@ -33,33 +33,10 @@ dimensions:
     synonyms: ["week start", "week"]
 
   - name: day_of_week
-    type: number
-    description: "Day of week (1=Monday, 7=Sunday)"
-    expr: "EXTRACT(DAYOFWEEK FROM Date)"
-
-  - name: calories
-    type: number
-    description: "Total daily calories in kcal"
-    expr: "\"Calories (kcal)\""
-    synonyms: ["kcal", "energy", "total calories"]
-
-  - name: protein
-    type: number
-    description: "Daily protein intake in grams"
-    expr: "\"Protein (g)\""
-    synonyms: ["protein grams"]
-
-  - name: carbs
-    type: number
-    description: "Daily carbohydrate intake in grams"
-    expr: "\"Carbs (g)\""
-    synonyms: ["carbohydrates", "carb grams"]
-
-  - name: fat
-    type: number
-    description: "Daily fat intake in grams"
-    expr: "\"Fat (g)\""
-    synonyms: ["fat grams", "dietary fat"]
+    type: string
+    description: "Day of week name"
+    expr: "DAYNAME(Date)"
+    synonyms: ["weekday"]
 
   - name: protein_ratio
     type: number
@@ -86,27 +63,27 @@ measures:
 
   - name: avg_daily_calories
     type: average
-    description: "Average daily calorie intake"
+    description: "Average daily calorie intake in kcal"
     expr: "\"Calories (kcal)\""
-    synonyms: ["mean calories", "average kcal"]
+    synonyms: ["mean calories", "average kcal", "calories", "kcal", "calorie intake"]
 
   - name: avg_daily_protein
     type: average
     description: "Average daily protein intake in grams"
     expr: "\"Protein (g)\""
-    synonyms: ["mean protein"]
+    synonyms: ["mean protein", "protein", "protein intake"]
 
   - name: avg_daily_carbs
     type: average
     description: "Average daily carbohydrate intake in grams"
     expr: "\"Carbs (g)\""
-    synonyms: ["mean carbs"]
+    synonyms: ["mean carbs", "carbs", "carbohydrates", "carb intake"]
 
   - name: avg_daily_fat
     type: average
     description: "Average daily fat intake in grams"
     expr: "\"Fat (g)\""
-    synonyms: ["mean fat"]
+    synonyms: ["mean fat", "fat", "fat intake", "dietary fat"]
 
   - name: total_calories
     type: sum

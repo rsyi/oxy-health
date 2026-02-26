@@ -1,5 +1,8 @@
 name: strength
-description: "Strength training progression tracking focused on the four main compound lifts (squat, deadlift, bench press, overhead press) for building and maintaining muscle mass critical for longevity"
+description: |
+  Strength training progression tracking focused on the four main compound lifts (squat, deadlift, bench press, overhead press) for building and maintaining muscle mass critical for longevity.
+
+  To determine workout patterns and which lifts happen on which days, group squat_days, deadlift_days, bench_days, and ohp_days by the day_of_week dimension.
 base_view: strength_tracker
 views:
   - strength_tracker
@@ -11,3 +14,4 @@ views:
 # - How many high-intensity sets am I doing per week?
 # - What's my training frequency?
 # - Am I making progress on strength gains?
+# - Which days of the week do I do each lift?
