@@ -1,3 +1,6 @@
 .checkpoint
 .databases
 .oxy_state/
+.DS_Store
+.lancedb/
+.semantics/.cubestore/
