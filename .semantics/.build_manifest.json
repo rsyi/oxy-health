@@ -1,0 +1,71 @@
+{
+  "version": "1.0",
+  "file_hashes": {
+    "topics/body_composition.topic.yml": "d7ad794909249df1151d50eb3630660a91c95e913f6b789ef3e7c07fdd7caa92",
+    "topics/climbing.topic.yml": "7964cc5dfefc7aa4ed27dd22bd318eb2416560161a37517c7807f7f02e50e3bd",
+    "topics/nutrition.topic.yml": "90014369f725f12529bcd1e5d7869f90cc72a5e732b0640a8dbd60f1a09e0b1b",
+    "topics/strength.topic.yml": "d96aa213aa4b36348949ca748ac20e35f01c1dc076681d3161b867c2665717f3",
+    "topics/vo2_max.topic.yml": "e5c7d1d8949b702a05c0c75e405b8b02a2c34711230dc9fa922a5cd8b04cc50e",
+    "views/body_composition.view.yml": "8cd1934c1cc9f412c3908f71409a8ad266d393a95427e9bd4b49367ac06de863",
+    "views/four_by_four.view.yml": "3ac340136a5879ac5c6863ecef1179bb6e33dae2f81298ba3adff94676c9adc7",
+    "views/kaya.view.yml": "3fe086aa5277d3c697371457ad2080e92a8cee8a15d82fc5b049222719fcbcbe",
+    "views/macro_tracker.view.yml": "2a19889a7e2b4a9daecb7a45ce884b73d73aaa60a412a612880df4c3931652bc",
+    "views/strength_tracker.view.yml": "ed78fd09681ef267af7bc9f7af85dc2321cc3b039608e56c48b12da9f230d3cd"
+  },
+  "embedding_file_hashes": {
+    "_routing_agent.agent.yml": "a15425eaef877b0de72af441830caee4451f1d32950f9701309eb01e7cd4fc00",
+    "ddl/body_composition_tracker.sql": "461eca3287e66bca1065caed6c862cf1eaab2833229056b32ed84b37026a4fc7",
+    "ddl/four_by_four.sql": "449ad6615258fed79936d3efecb9f727b53a98746b51431dde0c8842718f7793",
+    "ddl/kaya.sql": "6f043f5e06760c9131fda23463ccf4d9c421377dce293e37228c67d4f6002a9c",
+    "ddl/macro_tracker.sql": "06200c7f91475a11c1b8080e093634a630c6fddc9202810835205812b1c91c28",
+    "ddl/macro_tracker_macrofactor_full_log.sql": "82411f29388f10a9143f27cded3b84c79d011be66111b619b883fd4e52679708",
+    "ddl/refresh_data.workflow.yml": "343b6b698ee19f58271c08d8200d642f9efbdeacaa91d299bfdae9d809be8e46",
+    "ddl/strength_tracker.sql": "77fdf96aff4531cf2c064b0c052586f84a330a744c5cec3329d2b5f0da7614a8",
+    "health_analyst.agent.yml": "37808c3c394e645fbb638fc193ef7d303bab9823f0f5fa0b0c6f492a17ffde7f",
+    "queries/recent_strength_summary.sql": "f8190c28cf37fd33086d4e46c9f580befd66221810f08224368fa0aa8537c9a8",
+    "routing.agent.yml": "82b8158376d65e81272b66dee2d993b9a613e518b796ec75a8d6d8b7ea8ed6d2",
+    "semantics/topics/body_composition.topic.yml": "d7ad794909249df1151d50eb3630660a91c95e913f6b789ef3e7c07fdd7caa92",
+    "semantics/topics/climbing.topic.yml": "7964cc5dfefc7aa4ed27dd22bd318eb2416560161a37517c7807f7f02e50e3bd",
+    "semantics/topics/nutrition.topic.yml": "90014369f725f12529bcd1e5d7869f90cc72a5e732b0640a8dbd60f1a09e0b1b",
+    "semantics/topics/strength.topic.yml": "d96aa213aa4b36348949ca748ac20e35f01c1dc076681d3161b867c2665717f3",
+    "semantics/topics/vo2_max.topic.yml": "e5c7d1d8949b702a05c0c75e405b8b02a2c34711230dc9fa922a5cd8b04cc50e",
+    "sql-generator.agent.yml": "1879186b6f7a353bcd2d40fa2af682707997a8e76f6263dbf2853861d33518ef",
+    "verified_queries/1RM_Lombardi.sql": "7baf10d6efa9bea883f2678668aaf7758f7133b2712c1a3809181a149b0b791d"
+  },
+  "output_mapping": {
+    "topics/body_composition.topic.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/body_composition.yml"
+    ],
+    "topics/climbing.topic.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/climbing.yml"
+    ],
+    "topics/nutrition.topic.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/nutrition.yml"
+    ],
+    "topics/strength.topic.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/strength.yml"
+    ],
+    "topics/vo2_max.topic.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/vo2_max.yml"
+    ],
+    "views/body_composition.view.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/body_composition.yml"
+    ],
+    "views/four_by_four.view.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/four_by_four.yml"
+    ],
+    "views/kaya.view.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/kaya.yml"
+    ],
+    "views/macro_tracker.view.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/macro_tracker.yml"
+    ],
+    "views/strength_tracker.view.yml": [
+      "/Users/robertyi/repos/oxy-health/.semantics/model/strength_tracker.yml"
+    ]
+  },
+  "dependency_graph": {},
+  "last_build": 1772466078,
+  "config_hash": "cf0423e24fc56440bf8308812246380110638c5696123f18fc34a9a812a9e1f2",
+  "globals_hash": ""
+}

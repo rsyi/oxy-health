@@ -1,19 +1,41 @@
 name: macro_tracker
-description: "Daily nutrition tracking including macronutrients and total calories"
+description: "Nutrition log from MacroFactor tracking individual food entries with macronutrients and meal-level detail"
 datasource: motherduck
-table: nutrition.macro_tracker
+table: nutrition.macro_tracker_macrofactor_full_log
 
 entities:
-  - name: nutrition_day
+  - name: nutrition_entry
     type: primary
-    description: "Individual day of nutrition tracking"
+    description: "Individual food entry in the nutrition log"
+    key: food_entry_id
+
+  - name: nutrition_day
+    type: foreign
+    description: "Day of nutrition tracking for daily aggregation"
     key: date
 
 dimensions:
+  - name: food_entry_id
+    type: string
+    description: "Unique identifier for each food entry"
+    expr: "\"Date\" || ' ' || \"Time\" || ' ' || \"Food Name\""
+
   - name: date
     type: date
     description: "Date of nutrition entry"
     expr: "Date"
+
+  - name: time
+    type: string
+    description: "Time of day the food was logged"
+    expr: "Time"
+    synonyms: ["meal time", "time of day", "when"]
+
+  - name: food_name
+    type: string
+    description: "Name of the food item logged"
+    expr: "\"Food Name\""
+    synonyms: ["food", "item", "what I ate", "meal item"]
 
   - name: year
     type: number
@@ -22,13 +44,13 @@ dimensions:
 
   - name: month
     type: string
-    description: "Year-Month in YYYY-MM format for aggregation"
+    description: "Year-Month in YYYY-MM format"
     expr: "STRFTIME(Date, '%Y-%m')"
     synonyms: ["year-month", "month"]
 
   - name: week
     type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
+    description: "Week start date (Monday) in YYYY-MM-DD format"
     expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
     synonyms: ["week start", "week"]
 
@@ -41,71 +63,71 @@ dimensions:
   - name: protein_ratio
     type: number
     description: "Percentage of calories from protein"
-    expr: "(\"Protein (g)\" * 4.0) / \"Calories (kcal)\" * 100"
+    expr: "(\"Protein (g)\" * 4.0) / NULLIF(\"Calories (kcal)\", 0) * 100"
     synonyms: ["protein percentage", "protein %"]
 
   - name: carb_ratio
     type: number
     description: "Percentage of calories from carbohydrates"
-    expr: "(\"Carbs (g)\" * 4.0) / \"Calories (kcal)\" * 100"
+    expr: "(\"Carbs (g)\" * 4.0) / NULLIF(\"Calories (kcal)\", 0) * 100"
     synonyms: ["carb percentage", "carb %"]
 
   - name: fat_ratio
     type: number
     description: "Percentage of calories from fat"
-    expr: "(\"Fat (g)\" * 9.0) / \"Calories (kcal)\" * 100"
+    expr: "(\"Fat (g)\" * 9.0) / NULLIF(\"Calories (kcal)\", 0) * 100"
     synonyms: ["fat percentage", "fat %"]
 
 measures:
-  - name: total_days
+  - name: total_entries
     type: count
-    description: "Total number of days tracked"
+    description: "Total number of food entries logged"
+    synonyms: ["entry count", "number of entries"]
 
-  - name: avg_daily_calories
-    type: average
-    description: "Average daily calorie intake in kcal"
-    expr: "\"Calories (kcal)\""
-    synonyms: ["mean calories", "average kcal", "calories", "kcal", "calorie intake"]
+  - name: total_days
+    type: count_distinct
+    description: "Total number of distinct days tracked"
+    expr: "Date"
+    synonyms: ["days tracked", "number of days"]
 
-  - name: avg_daily_protein
-    type: average
-    description: "Average daily protein intake in grams"
-    expr: "\"Protein (g)\""
-    synonyms: ["mean protein", "protein", "protein intake"]
-
-  - name: avg_daily_carbs
-    type: average
-    description: "Average daily carbohydrate intake in grams"
-    expr: "\"Carbs (g)\""
-    synonyms: ["mean carbs", "carbs", "carbohydrates", "carb intake"]
-
-  - name: avg_daily_fat
-    type: average
-    description: "Average daily fat intake in grams"
-    expr: "\"Fat (g)\""
-    synonyms: ["mean fat", "fat", "fat intake", "dietary fat"]
+  - name: unique_foods
+    type: count_distinct
+    description: "Number of distinct food items consumed"
+    expr: "\"Food Name\""
+    synonyms: ["different foods", "food variety"]
 
   - name: total_calories
     type: sum
-    description: "Total calories consumed across all days"
+    description: "Total calories consumed in kcal"
     expr: "\"Calories (kcal)\""
+    synonyms: ["calories", "calorie intake", "kcal"]
 
   - name: total_protein
     type: sum
     description: "Total protein consumed in grams"
     expr: "\"Protein (g)\""
+    synonyms: ["protein", "protein intake"]
 
-  - name: min_daily_calories
-    type: min
-    description: "Minimum daily calories in period"
+  - name: total_carbs
+    type: sum
+    description: "Total carbohydrates consumed in grams"
+    expr: "\"Carbs (g)\""
+    synonyms: ["carbs", "carbohydrates", "carb intake"]
+
+  - name: total_fat
+    type: sum
+    description: "Total fat consumed in grams"
+    expr: "\"Fat (g)\""
+    synonyms: ["fat", "fat intake", "dietary fat"]
+
+  - name: total_fiber
+    type: sum
+    description: "Total dietary fiber consumed in grams"
+    expr: "\"Fiber (g)\""
+    synonyms: ["fiber", "fibre", "dietary fiber"]
+
+  - name: avg_entry_calories
+    type: average
+    description: "Average calories per food entry"
     expr: "\"Calories (kcal)\""
-
-  - name: max_daily_calories
-    type: max
-    description: "Maximum daily calories in period"
-    expr: "\"Calories (kcal)\""
-
-  - name: calorie_variance
-    type: custom
-    description: "Standard deviation of daily calories"
-    expr: "STDDEV_SAMP(\"Calories (kcal)\")"
+    synonyms: ["avg calories per item"]

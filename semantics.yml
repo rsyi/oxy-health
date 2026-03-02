@@ -11,6 +11,7 @@ dimensions:
 - name: Date
   targets:
   - motherduck.exercise.four_by_four.Date
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Date
 - name: Time Zone 5 Reached
   targets:
   - motherduck.exercise.four_by_four.Time Zone 5 Reached
@@ -26,3 +27,186 @@ dimensions:
 - name: Time Zone 4 Reached
   targets:
   - motherduck.exercise.four_by_four.Time Zone 4 Reached
+- name: Starch (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Starch (g)
+- name: Sugars Added (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Sugars Added (g)
+- name: B5, Pantothenic Acid (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B5, Pantothenic Acid (mg)
+- name: Vitamin D (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Vitamin D (mcg)
+- name: Tryptophan (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Tryptophan (g)
+- name: Monounsaturated Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Monounsaturated Fat (g)
+- name: Omega-6 (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Omega-6 (g)
+- name: Serving Size
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Serving Size
+- name: Vitamin K (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Vitamin K (mcg)
+- name: B2, Riboflavin (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B2, Riboflavin (mg)
+- name: Methionine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Methionine (g)
+- name: Trans Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Trans Fat (g)
+- name: Sugars (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Sugars (g)
+- name: Valine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Valine (g)
+- name: Lysine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Lysine (g)
+- name: Omega-3 (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Omega-3 (g)
+- name: Fiber (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Fiber (g)
+- name: Vitamin E (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Vitamin E (mg)
+- name: Cholesterol (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Cholesterol (mg)
+- name: Time
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Time
+- name: Omega-3 ALA (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Omega-3 ALA (g)
+- name: Phosphorus (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Phosphorus (mg)
+- name: Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Fat (g)
+- name: Sodium (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Sodium (mg)
+- name: Vitamin C (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Vitamin C (mg)
+- name: B3, Niacin (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B3, Niacin (mg)
+- name: Vitamin A (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Vitamin A (mcg)
+- name: Saturated Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Saturated Fat (g)
+- name: column61
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.column61
+- name: Zinc (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Zinc (mg)
+- name: Alcohol (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Alcohol (g)
+- name: Histidine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Histidine (g)
+- name: Iron (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Iron (mg)
+- name: B12, Cobalamin (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B12, Cobalamin (mcg)
+- name: Cysteine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Cysteine (g)
+- name: Leucine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Leucine (g)
+- name: Omega-3 DHA (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Omega-3 DHA (g)
+- name: Serving Qty
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Serving Qty
+- name: Isoleucine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Isoleucine (g)
+- name: Copper (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Copper (mg)
+- name: Potassium (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Potassium (mg)
+- name: B6, Pyridoxine (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B6, Pyridoxine (mg)
+- name: Water (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Water (g)
+- name: Selenium (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Selenium (mcg)
+- name: Threonine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Threonine (g)
+- name: Food Name
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Food Name
+- name: Calcium (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Calcium (mg)
+- name: Omega-3 EPA (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Omega-3 EPA (g)
+- name: B1, Thiamine (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.B1, Thiamine (mg)
+- name: Polyunsaturated Fat (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Polyunsaturated Fat (g)
+- name: Serving Weight (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Serving Weight (g)
+- name: Carbs (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Carbs (g)
+- name: Magnesium (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Magnesium (mg)
+- name: Tyrosine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Tyrosine (g)
+- name: Folate (mcg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Folate (mcg)
+- name: Manganese (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Manganese (mg)
+- name: Protein (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Protein (g)
+- name: Calories (kcal)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Calories (kcal)
+- name: Phenylalanine (g)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Phenylalanine (g)
+- name: Caffeine (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Caffeine (mg)
+- name: Choline (mg)
+  targets:
+  - motherduck.nutrition.macro_tracker_macrofactor_full_log.Choline (mg)

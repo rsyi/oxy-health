@@ -30,4 +30,4 @@ tasks:
     description: "Refresh macro tracking data"
     type: execute_sql
     database: motherduck
-    sql_file: ddl/macro_tracker.sql
+    sql_file: ddl/macro_tracker_macrofactor_full_log.sql

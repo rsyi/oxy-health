@@ -1,5 +1,5 @@
 name: nutrition
-description: "Daily nutrition tracking and macronutrient analysis for optimizing dietary intake to support longevity, cognitive health, and athletic performance"
+description: "Detailed nutrition tracking and analysis from MacroFactor food log, covering macronutrients, micronutrients, vitamins, minerals, amino acids, and meal-level detail for optimizing dietary intake"
 base_view: macro_tracker
 views:
   - macro_tracker
@@ -8,5 +8,10 @@ views:
 # - What are my average daily macros over the last month?
 # - How consistent is my calorie intake?
 # - What's my protein-to-calorie ratio?
-# - Am I hitting my nutrition targets?
+# - What foods am I eating most often?
+# - How much omega-3 am I getting daily?
+# - Am I hitting my vitamin D target?
+# - What are my top sources of protein?
 # - How do my macros vary by day of week?
+# - How much fiber am I averaging per day?
+# - What's my sodium intake trend?
