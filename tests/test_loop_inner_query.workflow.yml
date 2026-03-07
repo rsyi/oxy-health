@@ -1,0 +1,63 @@
+name: test_loop_inner_query
+description: Inner workflow - gets stats for a single exercise, with a nested loop over training days
+
+variables:
+  exercise_name:
+    type: string
+  month:
+    type: string
+    default: "2026-02-01"
+
+tasks:
+  - name: exercise_stats
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT
+        '{{ exercise_name }}' AS exercise,
+        MAX(Weight) AS max_weight,
+        COUNT(*) AS total_sets
+      FROM exercise.strength_tracker
+      WHERE Exercise = '{{ exercise_name }}'
+        AND Date >= CAST('{{ month }}' AS DATE)
+        AND Date < CAST('{{ month }}' AS DATE) + INTERVAL 1 MONTH
+
+  - name: get_training_days
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT DISTINCT CAST(Date AS VARCHAR) AS training_date
+      FROM exercise.strength_tracker
+      WHERE Exercise = '{{ exercise_name }}'
+        AND Date >= CAST('{{ month }}' AS DATE)
+        AND Date < CAST('{{ month }}' AS DATE) + INTERVAL 1 MONTH
+      ORDER BY Date
+
+  # Nested loop with concurrency — this is what triggers the bug
+  - name: loop_days
+    type: loop_sequential
+    values: "{{ get_training_days.training_date }}"
+    concurrency: 4
+    tasks:
+      - name: day_detail
+        type: execute_sql
+        database: motherduck
+        sql_query: |
+          SELECT
+            '{{ exercise_name }}' AS exercise,
+            Date,
+            MAX(Weight) AS top_set_weight,
+            MAX(Reps) AS max_reps
+          FROM exercise.strength_tracker
+          WHERE Exercise = '{{ exercise_name }}'
+            AND CAST(Date AS VARCHAR) = '{{ loop_days.value }}'
+          GROUP BY Date
+
+  - name: inner_formatter
+    type: formatter
+    template: |
+      {{ exercise_name }}: {{ exercise_stats }}
+      Days:
+      {% for day in loop_days %}
+      - {{ day.day_detail }}
+      {% endfor %}

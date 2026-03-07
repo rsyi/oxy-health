@@ -31,15 +31,15 @@ dimensions:
     expr: "EXTRACT(YEAR FROM Date)"
 
   - name: month
-    type: string
-    description: "Year-Month in YYYY-MM format for aggregation"
-    expr: "STRFTIME(Date, '%Y-%m')"
+    type: date
+    description: "Month start date for aggregation"
+    expr: "DATE_TRUNC('month', Date)"
     synonyms: ["year-month", "month"]
 
   - name: week
-    type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
-    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    type: date
+    description: "Week start date (Monday) for aggregation"
+    expr: "DATE_TRUNC('week', Date)"
     synonyms: ["week start", "week"]
 
   - name: day_of_week
@@ -177,7 +177,7 @@ measures:
           WHEN "Time Zone 5 Reached" IS NOT NULL
             AND "Time Zone 5 Reached" != ''
             AND "Time Zone 5 Reached" != 'never reached'
-          THEN EXTRACT(EPOCH FROM ("Total Time" - CAST("Time Zone 5 Reached" AS TIME))) / 60.0
+          THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP))) / 60.0
         END
       )
     synonyms: ["zone 5 time", "time in zone 5", "z5 time", "total zone 5"]
@@ -194,11 +194,11 @@ measures:
           THEN
             CASE
               WHEN "Time Zone 4 Reached" IS NOT NULL
-              THEN EXTRACT(EPOCH FROM (CAST("Time Zone 5 Reached" AS TIME) - "Time Zone 4 Reached")) / 60.0
+              THEN EXTRACT(EPOCH FROM (CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
               ELSE 1.0
             END
           WHEN "Time Zone 4 Reached" IS NOT NULL
-          THEN EXTRACT(EPOCH FROM ("Total Time" - "Time Zone 4 Reached")) / 60.0
+          THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
         END
       )
     synonyms: ["zone 4 time", "time in zone 4", "z4 time", "total zone 4"]

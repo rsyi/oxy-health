@@ -22,15 +22,15 @@ cubes:
       title: year
       description: Year of climb
     - name: month
-      sql: STRFTIME(date, '%Y-%m')
-      type: string
+      sql: DATE_TRUNC('month', date)
+      type: time
       title: month
-      description: Year-Month in YYYY-MM format for aggregation
+      description: Month start date for aggregation
     - name: week
-      sql: STRFTIME(DATE_TRUNC('week', date), '%Y-%m-%d')
-      type: string
+      sql: DATE_TRUNC('week', date)
+      type: time
       title: week
-      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+      description: Week start date (Monday) for aggregation
     - name: day_of_week
       sql: DAYNAME(date)
       type: string

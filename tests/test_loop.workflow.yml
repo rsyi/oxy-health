@@ -1,0 +1,48 @@
+name: test_loop
+description: >
+  Reproduces nested concurrent loop bug: "duplicate key value violates unique constraint idx_unique_source_runindex".
+  The issue occurs when an outer loop_sequential with concurrency spawns inner loops (via workflow tasks)
+  that also have concurrency. The run tracker generates colliding (source, run_index) keys across
+  parallel outer iterations.
+
+variables:
+  month:
+    type: string
+    default: "2026-02-01"
+
+tasks:
+  # Step 1: Get exercises to loop over (analogous to get_all_brand_rollups)
+  - name: get_exercises
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT DISTINCT Exercise AS exercise
+      FROM exercise.strength_tracker
+      WHERE Exercise IN ('Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press', 'Overhead Press')
+      ORDER BY Exercise
+
+  # Step 2: Outer loop with concurrency (analogous to loop_brand_rollup concurrency: 4)
+  # Each iteration calls a workflow that itself has an inner loop with concurrency
+  - name: loop_exercises
+    type: loop_sequential
+    values: "{{ get_exercises.exercise }}"
+    concurrency: 4
+    tasks:
+      - name: exercise_detail
+        type: workflow
+        src: tests/test_loop_inner_query.workflow.yml
+        variables:
+          exercise_name: "{{ loop_exercises.value }}"
+          month: "{{ month }}"
+
+  # Step 3: Format results from nested loops
+  - name: final_summary
+    type: formatter
+    variables:
+      month: "{{ month }}"
+    template: |
+      Monthly Strength Report for {{ month }}:
+
+      {% for ex in loop_exercises %}
+      {{ ex.exercise_detail.inner_formatter }}
+      {% endfor %}

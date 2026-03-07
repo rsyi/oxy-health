@@ -1,0 +1,218 @@
+name: workout_planner
+description: Build a personalized weekly workout plan using the last 4 weeks of training, body composition, and nutrition data
+
+tasks:
+  # Raw workout data (set-level detail for recent training structure)
+  - name: raw_strength_data
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT
+        Date,
+        Exercise,
+        Weight,
+        Reps,
+        RPE,
+        Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - COALESCE(RPE, 10.0 - POWER(Reps, 0.1) * 30.0 / Weight + 30.0))) / 30.0) AS rpe_adjusted_e1rm,
+        Weight * Reps AS volume
+      FROM exercise.strength_tracker
+      WHERE Date >= CURRENT_DATE - INTERVAL 28 DAY
+      ORDER BY Date DESC, "Start Time" DESC
+
+  - name: raw_cardio_data
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT
+        Date,
+        "Treadmill Speed (mph)",
+        "Treadmill Incline (%)",
+        "Stairmaster Speed",
+        "Time Zone 4 Reached",
+        "Time Zone 5 Reached",
+        "Total Time",
+        "Max Heart Rate",
+        Notes
+      FROM exercise.four_by_four
+      WHERE Date >= CURRENT_DATE - INTERVAL 28 DAY
+      ORDER BY Date DESC
+
+  - name: raw_climbing_data
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT
+        date,
+        climb_name,
+        gym,
+        grade,
+        ascent_type,
+        attempts,
+        rating
+      FROM exercise.kaya
+      WHERE date >= CURRENT_DATE - INTERVAL 28 DAY
+      ORDER BY date DESC
+
+  # Derivative metrics via semantic layer
+  - name: e1rm_trends
+    type: semantic_query
+    topic: strength
+    measures:
+      - strength_tracker.max_squat_rpe_e1rm
+      - strength_tracker.max_deadlift_rpe_e1rm
+      - strength_tracker.max_bench_rpe_e1rm
+      - strength_tracker.max_overhead_press_rpe_e1rm
+      - strength_tracker.total_volume
+      - strength_tracker.main_lift_volume
+      - strength_tracker.avg_rpe
+      - strength_tracker.high_intensity_sets
+      - strength_tracker.training_frequency
+    time_dimensions:
+      - dimension: strength_tracker.date
+        granularity: week
+    orders:
+      - field: strength_tracker.date
+        direction: desc
+    limit: 4
+
+  - name: body_comp_trend
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      WITH weekly AS (
+        SELECT
+          DATE_TRUNC('week', CAST("Datetime (Local)" AS DATE)) AS week,
+          AVG("Weight (lbs)") AS avg_weight,
+          MIN("Weight (lbs)") AS min_weight,
+          MAX("Weight (lbs)") AS max_weight,
+          LAST("Weight (lbs)" ORDER BY "Datetime (Local)") - FIRST("Weight (lbs)" ORDER BY "Datetime (Local)") AS weight_change,
+          REGR_SLOPE("Weight (lbs)", EXTRACT(EPOCH FROM "Datetime (Local)") / 86400) * 7 AS weekly_weight_trend_lbs
+        FROM body.body_composition_tracker
+        WHERE CAST("Datetime (Local)" AS DATE) >= CURRENT_DATE - INTERVAL 28 DAY
+        GROUP BY 1
+      )
+      SELECT
+        week,
+        ROUND(avg_weight, 1) AS avg_weight,
+        ROUND(weight_change, 2) AS weight_change,
+        ROUND(weekly_weight_trend_lbs, 2) AS weekly_weight_trend_lbs,
+        CASE
+          WHEN weekly_weight_trend_lbs > 0.25 THEN 'Bulk'
+          WHEN weekly_weight_trend_lbs < -0.25 THEN 'Cut'
+          ELSE 'Maintenance'
+        END AS training_phase,
+        ROUND(weight_change * 3500 / 7, 0) AS est_daily_caloric_balance
+      FROM weekly
+      ORDER BY week DESC
+
+  - name: nutrition_trend
+    type: semantic_query
+    topic: nutrition
+    measures:
+      - macro_tracker.avg_daily_calories
+      - macro_tracker.avg_daily_protein
+      - macro_tracker.avg_daily_carbs
+      - macro_tracker.avg_daily_fat
+    dimensions:
+      - macro_tracker.week
+    orders:
+      - field: macro_tracker.week
+        direction: desc
+    limit: 4
+
+  - name: vo2_trend
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT
+        DATE_TRUNC('week', Date) AS week,
+        COUNT(DISTINCT Date) AS training_frequency,
+        COUNT(*) AS total_intervals,
+        AVG("Treadmill Speed (mph)") AS avg_speed,
+        MAX("Treadmill Speed (mph)") AS max_speed,
+        AVG("Treadmill Incline (%)") AS avg_incline,
+        AVG("Max Heart Rate") AS avg_max_heart_rate,
+        COUNT(CASE WHEN "Time Zone 5 Reached" IS NOT NULL
+                    AND "Time Zone 5 Reached" != ''
+                    AND "Time Zone 5 Reached" != 'never reached' THEN 1 END) AS intervals_reaching_zone_5,
+        ROUND(COUNT(CASE WHEN "Time Zone 5 Reached" IS NOT NULL
+                         AND "Time Zone 5 Reached" != ''
+                         AND "Time Zone 5 Reached" != 'never reached' THEN 1 END) * 100.0
+              / NULLIF(COUNT(*), 0), 1) AS zone_5_success_rate
+      FROM exercise.four_by_four
+      WHERE Date >= CURRENT_DATE - INTERVAL 28 DAY
+      GROUP BY 1
+      ORDER BY 1 DESC
+
+  - name: climbing_trend
+    type: semantic_query
+    topic: climbing
+    measures:
+      - kaya.total_climbs
+      - kaya.climbing_days
+      - kaya.max_grade
+      - kaya.avg_grade
+      - kaya.flash_count
+      - kaya.avg_attempts
+    time_dimensions:
+      - dimension: kaya.date
+        granularity: week
+    orders:
+      - field: kaya.date
+        direction: desc
+    limit: 4
+
+  # Agent step: generate the workout plan
+  - name: build_workout_plan
+    type: agent
+    agent_ref: health_analyst.agent.yml
+    prompt: |
+      Build me a new workout plan for this week. Use ALL of the data below to create a concrete, specific plan.
+
+      CONTEXT:
+      - I follow 5/3/1 (4 days: squat, deadlift, bench, OHP) with accessories.
+      - I do Norwegian 4x4 VO2 max training (treadmill or stairmaster).
+      - I climb once a week (Mondays, ideally twice if schedule allows).
+      - The Omron body fat sensor is unreliable — infer body composition from weight trend + strength trends.
+      - Set counts include warmups (5-6 warmup sets before 3-5 working sets). Use volume and E1RM for load assessment, not set counts.
+
+      RAW STRENGTH DATA (last 4 weeks, set-level):
+      {{ raw_strength_data }}
+
+      RAW CARDIO DATA (last 4 weeks):
+      {{ raw_cardio_data }}
+
+      RAW CLIMBING DATA (last 4 weeks):
+      {{ raw_climbing_data }}
+
+      WEEKLY RPE-ADJUSTED E1RM TRENDS (last 4 weeks):
+      {{ e1rm_trends }}
+
+      BODY COMPOSITION TREND (last 4 weeks — includes training_phase: Bulk/Cut/Maintenance based on weekly weight trend):
+      {{ body_comp_trend }}
+
+      NUTRITION TREND (last 4 weeks, avg daily macros):
+      {{ nutrition_trend }}
+
+      VO2 MAX TREND (last 4 weeks):
+      {{ vo2_trend }}
+
+      CLIMBING TREND (last 4 weeks):
+      {{ climbing_trend }}
+
+      Based on all the above data, provide:
+      1. **Training Phase Assessment**: Am I currently on a cut, bulk, or maintenance? How does this affect programming?
+      2. **E1RM Trend Analysis**: How has each lift's RPE-adjusted E1RM been trending? Are any lifts stalling?
+      3. **5/3/1 Lift Schedule**: Specific target working weights for each main lift this week, based on E1RM trends and RPE. Include recommended accessories.
+      4. **VO2 Max Session Plan**: Equipment choice, speed/incline targets based on recent progression.
+      5. **Climbing Session Plan**: Target grades and focus areas based on recent climbing data.
+      6. **Nutrition Recommendations**: Adjust calories/protein if weight trend doesn't align with current training goals.
+      7. **Recovery/Deload Check**: Flag if RPE trends, volume, or frequency suggest accumulated fatigue requiring a deload.
+
+retrieval:
+  include:
+    - build me a workout plan
+    - plan my workouts
+    - what should I do this week
+    - weekly workout plan
+    - plan my training week

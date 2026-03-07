@@ -31,15 +31,15 @@ dimensions:
     expr: "EXTRACT(YEAR FROM \"Datetime (Local)\")"
 
   - name: month
-    type: string
-    description: "Year-Month in YYYY-MM format for aggregation"
-    expr: "STRFTIME(CAST(\"Datetime (Local)\" AS DATE), '%Y-%m')"
+    type: date
+    description: "Month start date for aggregation"
+    expr: "DATE_TRUNC('month', CAST(\"Datetime (Local)\" AS DATE))"
     synonyms: ["year-month", "month"]
 
   - name: week
-    type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
-    expr: "STRFTIME(DATE_TRUNC('week', CAST(\"Datetime (Local)\" AS DATE)), '%Y-%m-%d')"
+    type: date
+    description: "Week start date (Monday) for aggregation"
+    expr: "DATE_TRUNC('week', CAST(\"Datetime (Local)\" AS DATE))"
     synonyms: ["week start", "week"]
 
   - name: day_of_week
@@ -54,14 +54,14 @@ dimensions:
     expr: |
       CASE
         WHEN (
-          (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
-            ORDER BY \"Datetime (Local)\"
+          ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+            ORDER BY "Datetime (Local)"
             RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
           )) / 7 * 7
         ) > 0.25 THEN 'Bulk'
         WHEN (
-          (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
-            ORDER BY \"Datetime (Local)\"
+          ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+            ORDER BY "Datetime (Local)"
             RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
           )) / 7 * 7
         ) < -0.25 THEN 'Cut'

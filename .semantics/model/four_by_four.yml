@@ -22,15 +22,15 @@ cubes:
       title: year
       description: Year of session
     - name: month
-      sql: STRFTIME(Date, '%Y-%m')
-      type: string
+      sql: DATE_TRUNC('month', Date)
+      type: time
       title: month
-      description: Year-Month in YYYY-MM format for aggregation
+      description: Month start date for aggregation
     - name: week
-      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
-      type: string
+      sql: DATE_TRUNC('week', Date)
+      type: time
       title: week
-      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+      description: Week start date (Monday) for aggregation
     - name: day_of_week
       sql: DAYNAME(Date)
       type: string
@@ -150,7 +150,7 @@ cubes:
             WHEN "Time Zone 5 Reached" IS NOT NULL
               AND "Time Zone 5 Reached" != ''
               AND "Time Zone 5 Reached" != 'never reached'
-            THEN EXTRACT(EPOCH FROM ("Total Time" - CAST("Time Zone 5 Reached" AS TIME))) / 60.0
+            THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP))) / 60.0
           END
         )
       type: number
@@ -166,11 +166,11 @@ cubes:
             THEN
               CASE
                 WHEN "Time Zone 4 Reached" IS NOT NULL
-                THEN EXTRACT(EPOCH FROM (CAST("Time Zone 5 Reached" AS TIME) - "Time Zone 4 Reached")) / 60.0
+                THEN EXTRACT(EPOCH FROM (CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
                 ELSE 1.0
               END
             WHEN "Time Zone 4 Reached" IS NOT NULL
-            THEN EXTRACT(EPOCH FROM ("Total Time" - "Time Zone 4 Reached")) / 60.0
+            THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
           END
         )
       type: number

@@ -32,15 +32,15 @@ cubes:
       title: year
       description: Year of nutrition entry
     - name: month
-      sql: STRFTIME(Date, '%Y-%m')
-      type: string
+      sql: DATE_TRUNC('month', Date)
+      type: time
       title: month
-      description: Year-Month in YYYY-MM format
+      description: Month start date for aggregation
     - name: week
-      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
-      type: string
+      sql: DATE_TRUNC('week', Date)
+      type: time
       title: week
-      description: Week start date (Monday) in YYYY-MM-DD format
+      description: Week start date (Monday) for aggregation
     - name: day_of_week
       sql: DAYNAME(Date)
       type: string
@@ -107,3 +107,23 @@ cubes:
       type: avg
       title: avg_entry_calories
       description: Average calories per food entry
+    - name: avg_daily_calories
+      sql: SUM("Calories (kcal)") / NULLIF(COUNT(DISTINCT Date), 0)
+      type: number
+      title: avg_daily_calories
+      description: Average daily caloric intake in kcal
+    - name: avg_daily_protein
+      sql: SUM("Protein (g)") / NULLIF(COUNT(DISTINCT Date), 0)
+      type: number
+      title: avg_daily_protein
+      description: Average daily protein intake in grams
+    - name: avg_daily_carbs
+      sql: SUM("Carbs (g)") / NULLIF(COUNT(DISTINCT Date), 0)
+      type: number
+      title: avg_daily_carbs
+      description: Average daily carbohydrate intake in grams
+    - name: avg_daily_fat
+      sql: SUM("Fat (g)") / NULLIF(COUNT(DISTINCT Date), 0)
+      type: number
+      title: avg_daily_fat
+      description: Average daily fat intake in grams

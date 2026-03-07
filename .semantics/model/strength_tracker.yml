@@ -22,15 +22,15 @@ cubes:
       title: year
       description: Year of the workout
     - name: month
-      sql: STRFTIME(Date, '%Y-%m')
-      type: string
+      sql: DATE_TRUNC('month', Date)
+      type: time
       title: month
-      description: Year-Month in YYYY-MM format for aggregation
+      description: Month start date for aggregation
     - name: week
-      sql: STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')
-      type: string
+      sql: DATE_TRUNC('week', Date)
+      type: time
       title: week
-      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+      description: Week start date (Monday) for aggregation
     - name: day_of_week
       sql: '"Day of Week"'
       type: string
@@ -40,7 +40,7 @@ cubes:
       sql: Exercise
       type: string
       title: exercise
-      description: Name of the exercise performed
+      description: Name of the exercise performed. Use exact values when filtering.
     - name: is_main_lift
       sql: Exercise IN ('Overhead Press', 'Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press')
       type: boolean
@@ -81,6 +81,16 @@ cubes:
       type: number
       title: intensity
       description: Relative intensity as percentage of estimated 1RM
+    - name: rpe_adjusted_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: number
+      title: rpe_adjusted_e1rm
+      description: Estimated one-rep max adjusted for RPE using Epley formula. Accounts for reps in reserve (RIR = 10 - RPE) to give a more accurate E1RM than Lombardi. Falls back to Lombardi when RPE is not recorded.
     measures:
     - name: total_sets
       sql: '1'
@@ -223,6 +233,64 @@ cubes:
       description: Number of overhead press sets
       filters:
       - sql: Exercise = 'Overhead Press'
+    - name: max_squat_rpe_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: max
+      title: max_squat_rpe_e1rm
+      description: Maximum RPE-adjusted E1RM for barbell squat using Epley formula with reps in reserve
+      filters:
+      - sql: Exercise = 'Barbell Squat'
+    - name: max_deadlift_rpe_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: max
+      title: max_deadlift_rpe_e1rm
+      description: Maximum RPE-adjusted E1RM for deadlift using Epley formula with reps in reserve
+      filters:
+      - sql: Exercise = 'Barbell Deadlift'
+    - name: max_bench_rpe_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: max
+      title: max_bench_rpe_e1rm
+      description: Maximum RPE-adjusted E1RM for bench press using Epley formula with reps in reserve
+      filters:
+      - sql: Exercise = 'Flat Barbell Bench Press'
+    - name: max_overhead_press_rpe_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: max
+      title: max_overhead_press_rpe_e1rm
+      description: Maximum RPE-adjusted E1RM for overhead press using Epley formula with reps in reserve
+      filters:
+      - sql: Exercise = 'Overhead Press'
+    - name: max_rpe_adjusted_e1rm
+      sql: |
+        CASE
+          WHEN RPE IS NOT NULL AND RPE > 0
+          THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+          ELSE Weight * POWER(Reps, 0.1)
+        END
+      type: max
+      title: max_rpe_adjusted_e1rm
+      description: Maximum RPE-adjusted E1RM across all exercises using Epley formula with reps in reserve
     - name: max_estimated_1rm
       sql: Weight * POWER(Reps, 0.1)
       type: max

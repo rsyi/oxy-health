@@ -27,15 +27,15 @@ cubes:
       title: year
       description: Year of measurement
     - name: month
-      sql: STRFTIME(CAST("Datetime (Local)" AS DATE), '%Y-%m')
-      type: string
+      sql: DATE_TRUNC('month', CAST("Datetime (Local)" AS DATE))
+      type: time
       title: month
-      description: Year-Month in YYYY-MM format for aggregation
+      description: Month start date for aggregation
     - name: week
-      sql: STRFTIME(DATE_TRUNC('week', CAST("Datetime (Local)" AS DATE)), '%Y-%m-%d')
-      type: string
+      sql: DATE_TRUNC('week', CAST("Datetime (Local)" AS DATE))
+      type: time
       title: week
-      description: Week start date (Monday) in YYYY-MM-DD format for aggregation
+      description: Week start date (Monday) for aggregation
     - name: day_of_week
       sql: DAYNAME(CAST("Datetime (Local)" AS DATE))
       type: string
@@ -45,14 +45,14 @@ cubes:
       sql: |
         CASE
           WHEN (
-            (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
-              ORDER BY \"Datetime (Local)\"
+            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+              ORDER BY "Datetime (Local)"
               RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
             )) / 7 * 7
           ) > 0.25 THEN 'Bulk'
           WHEN (
-            (\"Weight (lbs)\" - AVG(\"Weight (lbs)\") OVER (
-              ORDER BY \"Datetime (Local)\"
+            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+              ORDER BY "Datetime (Local)"
               RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
             )) / 7 * 7
           ) < -0.25 THEN 'Cut'

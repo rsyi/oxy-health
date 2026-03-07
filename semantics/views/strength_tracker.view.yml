@@ -31,15 +31,15 @@ dimensions:
     expr: "EXTRACT(YEAR FROM Date)"
 
   - name: month
-    type: string
-    description: "Year-Month in YYYY-MM format for aggregation"
-    expr: "STRFTIME(Date, '%Y-%m')"
+    type: date
+    description: "Month start date for aggregation"
+    expr: "DATE_TRUNC('month', Date)"
     synonyms: ["year-month", "month"]
 
   - name: week
-    type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
-    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    type: date
+    description: "Week start date (Monday) for aggregation"
+    expr: "DATE_TRUNC('week', Date)"
     synonyms: ["week start", "week"]
 
   - name: day_of_week
@@ -102,6 +102,17 @@ dimensions:
     description: "Relative intensity as percentage of estimated 1RM"
     expr: "(Weight / (Weight * POWER(Reps, 0.1))) * 100"
     synonyms: ["% of 1RM", "intensity percentage"]
+
+  - name: rpe_adjusted_e1rm
+    type: number
+    description: "Estimated one-rep max adjusted for RPE using Epley formula. Accounts for reps in reserve (RIR = 10 - RPE) to give a more accurate E1RM than Lombardi. Falls back to Lombardi when RPE is not recorded."
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    synonyms: ["RPE 1RM", "RPE-adjusted 1RM", "adjusted E1RM", "true 1RM"]
 
 measures:
   - name: total_sets
@@ -257,6 +268,70 @@ measures:
     description: "Number of overhead press sets"
     filters:
       - expr: "Exercise = 'Overhead Press'"
+
+  # RPE-Adjusted E1RM Measures (Epley formula with RIR)
+  - name: max_squat_rpe_e1rm
+    type: max
+    description: "Maximum RPE-adjusted E1RM for barbell squat using Epley formula with reps in reserve"
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    filters:
+      - expr: "Exercise = 'Barbell Squat'"
+    synonyms: ["squat RPE 1RM", "squat true 1RM"]
+
+  - name: max_deadlift_rpe_e1rm
+    type: max
+    description: "Maximum RPE-adjusted E1RM for deadlift using Epley formula with reps in reserve"
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    filters:
+      - expr: "Exercise = 'Barbell Deadlift'"
+    synonyms: ["deadlift RPE 1RM", "deadlift true 1RM"]
+
+  - name: max_bench_rpe_e1rm
+    type: max
+    description: "Maximum RPE-adjusted E1RM for bench press using Epley formula with reps in reserve"
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    filters:
+      - expr: "Exercise = 'Flat Barbell Bench Press'"
+    synonyms: ["bench RPE 1RM", "bench true 1RM"]
+
+  - name: max_overhead_press_rpe_e1rm
+    type: max
+    description: "Maximum RPE-adjusted E1RM for overhead press using Epley formula with reps in reserve"
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    filters:
+      - expr: "Exercise = 'Overhead Press'"
+    synonyms: ["OHP RPE 1RM", "overhead press true 1RM"]
+
+  - name: max_rpe_adjusted_e1rm
+    type: max
+    description: "Maximum RPE-adjusted E1RM across all exercises using Epley formula with reps in reserve"
+    expr: |
+      CASE
+        WHEN RPE IS NOT NULL AND RPE > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        ELSE Weight * POWER(Reps, 0.1)
+      END
+    synonyms: ["RPE 1RM", "true 1RM", "adjusted E1RM"]
 
   # General 1RM (across all exercises)
   - name: max_estimated_1rm

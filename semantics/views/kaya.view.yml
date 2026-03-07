@@ -31,15 +31,15 @@ dimensions:
     expr: "EXTRACT(YEAR FROM date)"
 
   - name: month
-    type: string
-    description: "Year-Month in YYYY-MM format for aggregation"
-    expr: "STRFTIME(date, '%Y-%m')"
+    type: date
+    description: "Month start date for aggregation"
+    expr: "DATE_TRUNC('month', date)"
     synonyms: ["year-month", "month"]
 
   - name: week
-    type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format for aggregation"
-    expr: "STRFTIME(DATE_TRUNC('week', date), '%Y-%m-%d')"
+    type: date
+    description: "Week start date (Monday) for aggregation"
+    expr: "DATE_TRUNC('week', date)"
     synonyms: ["week start", "week"]
 
   - name: day_of_week

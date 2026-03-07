@@ -43,15 +43,15 @@ dimensions:
     expr: "EXTRACT(YEAR FROM Date)"
 
   - name: month
-    type: string
-    description: "Year-Month in YYYY-MM format"
-    expr: "STRFTIME(Date, '%Y-%m')"
+    type: date
+    description: "Month start date for aggregation"
+    expr: "DATE_TRUNC('month', Date)"
     synonyms: ["year-month", "month"]
 
   - name: week
-    type: string
-    description: "Week start date (Monday) in YYYY-MM-DD format"
-    expr: "STRFTIME(DATE_TRUNC('week', Date), '%Y-%m-%d')"
+    type: date
+    description: "Week start date (Monday) for aggregation"
+    expr: "DATE_TRUNC('week', Date)"
     synonyms: ["week start", "week"]
 
   - name: day_of_week
@@ -131,3 +131,27 @@ measures:
     description: "Average calories per food entry"
     expr: "\"Calories (kcal)\""
     synonyms: ["avg calories per item"]
+
+  - name: avg_daily_calories
+    type: custom
+    description: "Average daily caloric intake in kcal"
+    expr: "SUM(\"Calories (kcal)\") / NULLIF(COUNT(DISTINCT Date), 0)"
+    synonyms: ["daily calories", "calories per day", "avg calories"]
+
+  - name: avg_daily_protein
+    type: custom
+    description: "Average daily protein intake in grams"
+    expr: "SUM(\"Protein (g)\") / NULLIF(COUNT(DISTINCT Date), 0)"
+    synonyms: ["daily protein", "protein per day", "avg protein"]
+
+  - name: avg_daily_carbs
+    type: custom
+    description: "Average daily carbohydrate intake in grams"
+    expr: "SUM(\"Carbs (g)\") / NULLIF(COUNT(DISTINCT Date), 0)"
+    synonyms: ["daily carbs", "carbs per day", "avg carbs"]
+
+  - name: avg_daily_fat
+    type: custom
+    description: "Average daily fat intake in grams"
+    expr: "SUM(\"Fat (g)\") / NULLIF(COUNT(DISTINCT Date), 0)"
+    synonyms: ["daily fat", "fat per day", "avg fat"]
