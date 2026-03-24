@@ -72,7 +72,8 @@ dimensions:
     expr: |
       CASE
         WHEN LOWER(grade) = 'vintro' THEN 0
-        ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+        WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+        ELSE NULL
       END
     synonyms: ["numeric grade", "grade value"]
 
@@ -147,7 +148,8 @@ measures:
       MAX(
         CASE
           WHEN LOWER(grade) = 'vintro' THEN 0
-          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          ELSE NULL
         END
       )
     synonyms: ["hardest grade", "highest grade", "peak grade"]
@@ -159,7 +161,8 @@ measures:
       AVG(
         CASE
           WHEN LOWER(grade) = 'vintro' THEN 0
-          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          ELSE NULL
         END
       )
     synonyms: ["mean grade", "average difficulty"]
