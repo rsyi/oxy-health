@@ -9,10 +9,6 @@ entities:
     description: "Individual 4-minute interval effort within a 4x4 workout"
     key: session_id
 
-  - name: training_day
-    type: foreign
-    description: "Training day for the session"
-    key: date
 
 dimensions:
   - name: session_id

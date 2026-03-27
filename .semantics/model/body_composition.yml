@@ -1,6 +1,24 @@
-cubes:
+views:
   - name: body_composition
-    sql_table: body.body_composition_tracker
+    sql: |
+      SELECT
+        *,
+        CASE
+          WHEN (
+            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+              ORDER BY "Datetime (Local)"
+              RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+            )) / 7 * 7
+          ) > 0.25 THEN 'Bulk'
+          WHEN (
+            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+              ORDER BY "Datetime (Local)"
+              RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+            )) / 7 * 7
+          ) < -0.25 THEN 'Cut'
+          ELSE 'Maintenance'
+        END AS training_phase
+      FROM body.body_composition_tracker
     data_source: motherduck
     title: body_composition
     description: Body composition tracking including weight and body fat percentage measurements using Omron scale for monitoring lean mass and body composition trends
@@ -42,22 +60,7 @@ cubes:
       title: day_of_week
       description: Day of week name
     - name: training_phase
-      sql: |
-        CASE
-          WHEN (
-            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
-              ORDER BY "Datetime (Local)"
-              RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
-            )) / 7 * 7
-          ) > 0.25 THEN 'Bulk'
-          WHEN (
-            ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
-              ORDER BY "Datetime (Local)"
-              RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
-            )) / 7 * 7
-          ) < -0.25 THEN 'Cut'
-          ELSE 'Maintenance'
-        END
+      sql: training_phase
       type: string
       title: training_phase
       description: Current training phase based on weight trend vs previous 7-day average. Bulk = gaining >0.25 lbs/week, Cut = losing >0.25 lbs/week, Maintenance = stable

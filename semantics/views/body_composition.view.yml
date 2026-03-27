@@ -1,7 +1,25 @@
 name: body_composition
 description: "Body composition tracking including weight and body fat percentage measurements using Omron scale for monitoring lean mass and body composition trends"
 datasource: motherduck
-table: body.body_composition_tracker
+sql: |
+  SELECT
+    *,
+    CASE
+      WHEN (
+        ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+          ORDER BY "Datetime (Local)"
+          RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+        )) / 7 * 7
+      ) > 0.25 THEN 'Bulk'
+      WHEN (
+        ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
+          ORDER BY "Datetime (Local)"
+          RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
+        )) / 7 * 7
+      ) < -0.25 THEN 'Cut'
+      ELSE 'Maintenance'
+    END AS training_phase
+  FROM body.body_composition_tracker
 
 entities:
   - name: measurement
@@ -51,22 +69,7 @@ dimensions:
   - name: training_phase
     type: string
     description: "Current training phase based on weight trend vs previous 7-day average. Bulk = gaining >0.25 lbs/week, Cut = losing >0.25 lbs/week, Maintenance = stable"
-    expr: |
-      CASE
-        WHEN (
-          ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
-            ORDER BY "Datetime (Local)"
-            RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
-          )) / 7 * 7
-        ) > 0.25 THEN 'Bulk'
-        WHEN (
-          ("Weight (lbs)" - AVG("Weight (lbs)") OVER (
-            ORDER BY "Datetime (Local)"
-            RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND INTERVAL 1 DAY PRECEDING
-          )) / 7 * 7
-        ) < -0.25 THEN 'Cut'
-        ELSE 'Maintenance'
-      END
+    expr: "training_phase"
     samples: ["Bulk", "Cut", "Maintenance"]
     synonyms: ["phase", "bulk or cut", "training cycle", "diet phase", "cutting", "bulking", "maintaining"]
 

@@ -60,6 +60,18 @@ tasks:
     orders:
       - field: four_by_four.week
         direction: asc
+  - name: get_weekly_climbing_attempts
+    type: semantic_query
+    topic: climbing
+    measures:
+      - climbing_tracker.attempts
+      - climbing_tracker.successes
+      - climbing_tracker.projects
+    dimensions:
+      - climbing_tracker.week
+    orders:
+      - field: climbing_tracker.week
+        direction: asc
   - name: deliver_a_concrete_individualized_data_driven_weekly_workout
     type: formatter
     template: |-

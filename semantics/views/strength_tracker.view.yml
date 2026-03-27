@@ -9,10 +9,6 @@ entities:
     description: "Individual set of an exercise"
     key: set_id
 
-  - name: training_day
-    type: foreign
-    description: "Training day for the workout"
-    key: date
 
 dimensions:
   - name: set_id
@@ -83,7 +79,7 @@ dimensions:
   - name: start_time
     type: datetime
     description: "Timestamp when set was started"
-    expr: "\"Start Time\""
+    expr: "strptime(CAST(Date AS VARCHAR) || ' ' || \"Start Time\", '%Y-%m-%d %-I:%M:%S %p')"
 
   - name: estimated_1rm
     type: number

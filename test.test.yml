@@ -1,0 +1,11 @@
+name: test_workout_plan
+target: health_analyst.agent.yml
+settings:
+  concurrency: 2
+  runs: 1
+  judge_model: null
+cases:
+  - prompt: Build me a training routine
+    expected: ""
+    tags: []
+    tool: null

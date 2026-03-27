@@ -21,6 +21,16 @@ tasks:
       WHERE Exercise IN ('Barbell Squat', 'Barbell Deadlift', 'Flat Barbell Bench Press', 'Overhead Press')
       ORDER BY Exercise
 
+  # Step 1a: Get climbing data
+  - name: get_climbing_data
+    type: execute_sql
+    database: motherduck
+    sql_query: |
+      SELECT *
+      FROM climbing.climbing_data
+      WHERE climb_date >= '{{ month }}'
+      ORDER BY climb_date DESC
+
   # Step 2: Outer loop with concurrency (analogous to loop_brand_rollup concurrency: 4)
   # Each iteration calls a workflow that itself has an inner loop with concurrency
   - name: loop_exercises
