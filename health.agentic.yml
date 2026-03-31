@@ -1,0 +1,21 @@
+llm:
+  ref: openai-5.4-mini
+  model: gpt-5.4-mini
+  max_tokens: 4096
+
+# Global thinking applied to every pipeline state.  Per-state overrides
+# in the `states:` section take precedence.
+thinking: effort::low
+
+context:
+  - ./semantics/views/*.view.yml
+  - ./semantics/topics/*.topic.yml
+  - ./verified_queries/*
+
+states:
+  clarifying:
+    max_retries: 3
+  specifying:
+    max_retries: 3
+  solving:
+    max_retries: 3
