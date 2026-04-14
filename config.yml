@@ -5,9 +5,13 @@ models:
   - vendor: openai
     name: openai
 #    model_ref: gpt-5.2
-    model_ref: gpt-4.1
+    model_ref: gpt-5.4
     key_var: OPENAI_API_KEY
     api_url: https://api.openai.com/v1
+  - vendor: anthropic
+    name: claude
+    model_ref: claude-haiku-4-5
+    key_var: ANTHROPIC_API_KEY
 databases:
   - name: motherduck
     type: motherduck

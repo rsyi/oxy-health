@@ -62,7 +62,7 @@ cubes:
       title: rpe
       description: Rate of Perceived Exertion (1-10 scale)
     - name: start_time
-      sql: '"Start Time"'
+      sql: strptime(CAST(Date AS VARCHAR) || ' ' || "Start Time", '%Y-%m-%d %-I:%M:%S %p')
       type: time
       title: start_time
       description: Timestamp when set was started

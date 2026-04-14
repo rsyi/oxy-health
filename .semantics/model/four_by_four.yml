@@ -150,7 +150,7 @@ cubes:
             WHEN "Time Zone 5 Reached" IS NOT NULL
               AND "Time Zone 5 Reached" != ''
               AND "Time Zone 5 Reached" != 'never reached'
-            THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP))) / 60.0
+            THEN CAST((EXTRACT(EPOCH FROM "Total Time") - EXTRACT(EPOCH FROM CAST("Time Zone 5 Reached" AS TIME))) AS DOUBLE) / 60.0
           END
         )
       type: number
@@ -166,11 +166,11 @@ cubes:
             THEN
               CASE
                 WHEN "Time Zone 4 Reached" IS NOT NULL
-                THEN EXTRACT(EPOCH FROM (CAST(CAST("Time Zone 5 Reached" AS TIME) AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
+                THEN CAST((EXTRACT(EPOCH FROM CAST("Time Zone 5 Reached" AS TIME)) - EXTRACT(EPOCH FROM "Time Zone 4 Reached")) AS DOUBLE) / 60.0
                 ELSE 1.0
               END
             WHEN "Time Zone 4 Reached" IS NOT NULL
-            THEN EXTRACT(EPOCH FROM (CAST("Total Time" AS TIMESTAMP) - CAST("Time Zone 4 Reached" AS TIMESTAMP))) / 60.0
+            THEN CAST((EXTRACT(EPOCH FROM "Total Time") - EXTRACT(EPOCH FROM "Time Zone 4 Reached")) AS DOUBLE) / 60.0
           END
         )
       type: number

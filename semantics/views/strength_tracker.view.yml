@@ -73,7 +73,7 @@ dimensions:
   - name: rpe
     type: number
     description: "Rate of Perceived Exertion (1-10 scale)"
-    expr: "RPE"
+    expr: "TRY_CAST(RPE AS DOUBLE)"
     synonyms: ["difficulty", "effort level"]
 
   - name: start_time
@@ -104,8 +104,8 @@ dimensions:
     description: "Estimated one-rep max adjusted for RPE using Epley formula. Accounts for reps in reserve (RIR = 10 - RPE) to give a more accurate E1RM than Lombardi. Falls back to Lombardi when RPE is not recorded."
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     synonyms: ["RPE 1RM", "RPE-adjusted 1RM", "adjusted E1RM", "true 1RM"]
@@ -271,8 +271,8 @@ measures:
     description: "Maximum RPE-adjusted E1RM for barbell squat using Epley formula with reps in reserve"
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     filters:
@@ -284,8 +284,8 @@ measures:
     description: "Maximum RPE-adjusted E1RM for deadlift using Epley formula with reps in reserve"
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     filters:
@@ -297,8 +297,8 @@ measures:
     description: "Maximum RPE-adjusted E1RM for bench press using Epley formula with reps in reserve"
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     filters:
@@ -310,8 +310,8 @@ measures:
     description: "Maximum RPE-adjusted E1RM for overhead press using Epley formula with reps in reserve"
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     filters:
@@ -323,8 +323,8 @@ measures:
     description: "Maximum RPE-adjusted E1RM across all exercises using Epley formula with reps in reserve"
     expr: |
       CASE
-        WHEN RPE IS NOT NULL AND RPE > 0
-        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - RPE)) / 30.0)
+        WHEN TRY_CAST(RPE AS DOUBLE) IS NOT NULL AND TRY_CAST(RPE AS DOUBLE) > 0
+        THEN Weight * (1.0 + (CAST(Reps AS DOUBLE) + (10.0 - TRY_CAST(RPE AS DOUBLE))) / 30.0)
         ELSE Weight * POWER(Reps, 0.1)
       END
     synonyms: ["RPE 1RM", "true 1RM", "adjusted E1RM"]
@@ -340,11 +340,11 @@ measures:
   - name: avg_rpe
     type: average
     description: "Average rate of perceived exertion"
-    expr: "RPE"
+    expr: "TRY_CAST(RPE AS DOUBLE)"
     synonyms: ["mean RPE", "average effort"]
 
   - name: high_intensity_sets
     type: count
     description: "Number of sets with RPE >= 8"
     filters:
-      - expr: "RPE >= 8"
+      - expr: "TRY_CAST(RPE AS DOUBLE) >= 8"

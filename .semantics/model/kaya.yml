@@ -55,7 +55,8 @@ cubes:
       sql: |
         CASE
           WHEN LOWER(grade) = 'vintro' THEN 0
-          ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+          ELSE NULL
         END
       type: number
       title: grade_number
@@ -125,7 +126,8 @@ cubes:
         MAX(
           CASE
             WHEN LOWER(grade) = 'vintro' THEN 0
-            ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+            WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+            ELSE NULL
           END
         )
       type: number
@@ -136,7 +138,8 @@ cubes:
         AVG(
           CASE
             WHEN LOWER(grade) = 'vintro' THEN 0
-            ELSE CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+            WHEN REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) != '' THEN CAST(REGEXP_EXTRACT(LOWER(grade), 'v(\d+)', 1) AS INTEGER) + 1
+            ELSE NULL
           END
         )
       type: number

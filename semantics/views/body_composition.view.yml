@@ -145,7 +145,7 @@ measures:
   - name: weight_trend_slope
     type: custom
     description: "Daily rate of weight change (lbs/day). Positive = gaining, negative = losing, near zero = maintaining. Requires an aggregated time dimension (week, month, etc.) to be meaningful"
-    expr: "REGR_SLOPE(\"Weight (lbs)\", EXTRACT(EPOCH FROM \"Datetime (Local)\") / 86400)"
+    expr: "CASE WHEN COUNT(\"Weight (lbs)\") >= 3 THEN REGR_SLOPE(\"Weight (lbs)\", EXTRACT(EPOCH FROM \"Datetime (Local)\") / 86400) END"
     synonyms: ["weight trend", "weight trajectory", "daily weight change rate"]
 
   - name: avg_weekly_weight_change
