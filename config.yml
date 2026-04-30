@@ -27,3 +27,7 @@ databases:
 mcp:
   tools:
     - semantics/topics/*.topic.yml
+
+builder_agent:
+  model: claude
+
