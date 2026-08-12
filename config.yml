@@ -24,7 +24,8 @@ databases:
       - "*"
       nutrition:
       - "*"
-
+health_check:
+  enabled: false  # motherduck connector cause healthcheck panic and restart oxy instance
 builder_agent:
   model: claude
 
